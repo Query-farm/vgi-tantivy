@@ -4,7 +4,9 @@
 
 <p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
 
-# vgi-tantivy
+# BM25 Full-Text Search with Stemming & Tokenization in DuckDB
+
+> **vgi-tantivy** · a [Query.Farm](https://query.farm) VGI worker · powered by tantivy
 
 A [VGI](https://query.farm) worker (Rust, a compiled binary) that brings
 **full-text search** — BM25 relevance ranking — plus **tokenization** and
