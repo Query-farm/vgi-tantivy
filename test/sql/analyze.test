@@ -1,0 +1,88 @@
+# name: test/sql/analyze.test
+# group: [vgi_tantivy]
+#
+# Per-row text-analysis scalars over text supplied as SQL string literals:
+# tokenize (default + language variants, via UNNEST), stem, bm25_score, and
+# tantivy_version. These need no corpus index.
+
+require-env VGI_TANTIVY_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION '${VGI_TANTIVY_WORKER}');
+
+statement ok
+SET search_path = 'tantivy.main';
+
+# tokenize (default) → one lowercased token per row.
+query T rowsort
+SELECT UNNEST(tokenize('Running quickly, CATS!'));
+----
+cats
+quickly
+running
+
+# tokenize (english stemming variant) → stemmed tokens.
+query T rowsort
+SELECT UNNEST(tokenize('Running quickly', 'english'));
+----
+quick
+run
+
+# stem a single word.
+query T
+SELECT stem('running', 'english');
+----
+run
+
+query T
+SELECT stem('cats', 'english');
+----
+cat
+
+# bm25_score: a relevant doc scores higher than an irrelevant one (non-match → 0).
+query I
+SELECT bm25_score('the cat sat on the mat', 'cat') > bm25_score('the stock market crashed', 'cat');
+----
+true
+
+query I
+SELECT bm25_score('the stock market crashed', 'cat') = 0.0;
+----
+true
+
+# tantivy_version mentions the engine.
+query I
+SELECT tantivy_version() LIKE '%tantivy%';
+----
+true
+
+# NULL text → NULL.
+query I
+SELECT tokenize(NULL::VARCHAR) IS NULL;
+----
+true
+
+query I
+SELECT stem(NULL::VARCHAR, 'english') IS NULL;
+----
+true
+
+# Empty text → empty token list (not NULL).
+query I
+SELECT len(tokenize(''));
+----
+0
+
+# Unknown language is a clear error.
+statement error
+SELECT stem('x', 'klingon');
+----
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tantivy;

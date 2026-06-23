@@ -1,0 +1,115 @@
+# name: test/sql/search.test
+# group: [vgi_tantivy]
+#
+# Table functions: bm25_search() ranks a JSON document corpus against a query as
+# (doc_id, score) rows; supported_languages() is the stemmer-language discovery
+# list. The corpus is a constant JSON payload (table functions take constants,
+# not subqueries) — assembled in real use with json_group_array.
+#
+# BM25 scores are deterministic for a fixed corpus, so we assert ranking ORDER
+# (which docs rank top) and ROUND scores rather than depending on exact floats.
+
+require-env VGI_TANTIVY_WORKER
+
+statement ok
+LOAD vgi;
+
+# The json extension supplies json_group_array used in the corpus-assembly demo.
+statement ok
+INSTALL json;
+
+statement ok
+LOAD json;
+
+statement ok
+ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION '${VGI_TANTIVY_WORKER}');
+
+statement ok
+SET search_path = 'tantivy.main';
+
+# Headline: the cat doc (index 0) ranks first for 'cat'; the non-matching docs do
+# not appear (single-term query is conjunctive → only matching docs returned).
+query I
+SELECT doc_id FROM bm25_search('["the cat sat","dogs bark","stock market crash"]', 'cat') ORDER BY score DESC LIMIT 1;
+----
+0
+
+# Exactly one doc matches 'cat' in that corpus, and its score is positive.
+query II
+SELECT count(*), CAST(max(score) > 0 AS INT) FROM bm25_search('["the cat sat","dogs bark","stock market crash"]', 'cat');
+----
+1	1
+
+# A four-doc corpus: two docs mention cats; both outrank (here, exclude) finance.
+# Ranked doc_ids for 'cat' are exactly {0,1}, ordered by descending score.
+query I
+SELECT doc_id FROM bm25_search('["the cat sat on the mat","a curious cat chased the laser","the loyal dog barked","the stock market crashed and finance suffered"]', 'cat') ORDER BY score DESC, doc_id;
+----
+0
+1
+
+# Scores are descending: the top hit's score >= the second's.
+query I
+SELECT (array_agg(score ORDER BY score DESC))[1] >= (array_agg(score ORDER BY score DESC))[2] FROM bm25_search('["the cat sat on the mat","a curious cat chased the laser"]', 'cat');
+----
+true
+
+# Explicit ids form: {"id","text"} surfaces the caller's doc id.
+query I
+SELECT doc_id FROM bm25_search('[{"id":42,"text":"a happy cat"},{"id":7,"text":"a sad dog"}]', 'cat');
+----
+42
+
+# Empty corpus → no rows.
+query I
+SELECT count(*) FROM bm25_search('[]', 'cat');
+----
+0
+
+# Blank query → no rows.
+query I
+SELECT count(*) FROM bm25_search('["the cat sat"]', '   ');
+----
+0
+
+# NULL docs_json → no rows (worker stays alive).
+query I
+SELECT count(*) FROM bm25_search(NULL::VARCHAR, 'cat');
+----
+0
+
+# json_group_array assembly pattern: build the corpus from a real table. Table
+# functions take constants (not subqueries), so materialize the JSON payload into
+# a DuckDB variable with json_group_array first, then pass the variable.
+statement ok
+CREATE TEMP TABLE corpus AS SELECT * FROM (VALUES ('the cat sat'), ('dogs bark'), ('finance markets crash')) AS t(body);
+
+statement ok
+SET VARIABLE docs = (SELECT json_group_array(body) FROM corpus);
+
+query I
+SELECT doc_id FROM bm25_search(getvariable('docs'), 'cat') ORDER BY score DESC LIMIT 1;
+----
+0
+
+# supported_languages() discovery: non-empty and includes english.
+query I
+SELECT count(*) > 0 FROM supported_languages();
+----
+true
+
+query I
+SELECT count(*) FROM supported_languages() WHERE lang = 'english';
+----
+1
+
+# Malformed docs_json is a clear error.
+statement error
+SELECT * FROM bm25_search('not json', 'cat');
+----
+
+statement ok
+USE memory;
+
+statement ok
+DETACH tantivy;

@@ -1,0 +1,40 @@
+[workspace]
+resolver = "2"
+members = ["crates/tantivy-worker"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT"
+authors = ["Query Farm LLC <hello@query.farm>"]
+repository = "https://github.com/Query-farm/vgi-tantivy"
+
+[workspace.dependencies]
+# VGI Rust SDK (worker side), published on crates.io. Pulls in vgi-rpc 0.2 and
+# arrow 58 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
+# single arrow/vgi-rpc resolves.
+vgi = "0.5.0"
+vgi-rpc = { version = "0.2.0", default-features = false, features = ["macros", "http"] }
+arrow-array = "58"
+arrow-buffer = "58"
+arrow-schema = "58"
+
+# tantivy — the Rust full-text search engine (MIT). Pinned to the 0.24 line: its
+# MSRV is under the workspace rust-version (1.86) and it builds cleanly there;
+# 0.25/0.26 bump the toolchain past 1.86. We use only the in-process RAM-directory
+# index, its BM25 scoring, and its tokenizer/Snowball-stemmer stack — no on-disk
+# index, no mmap persistence.
+tantivy = "=0.24.2"
+
+# JSON parsing for the `bm25_search` docs payload (a JSON array of strings or
+# {"id","text"} objects). serde_json's MSRV is well under 1.86.
+serde_json = "1"
+
+# NOTE — MSRV (1.86) lockfile pins. tantivy's transitive graph otherwise resolves
+# crates that require Rust ≥ 1.87/1.88. Cargo.lock is pinned back via
+# `cargo update -p <crate> --precise <ver>` to keep the whole graph ≤ 1.86:
+#   time     0.3.41   (→ time-core 0.1.4, time-macros 0.2.22)
+#   darling  0.20.11
+#   wasip2   1.0.0+wasi-0.2.4
+# If you bump `tantivy`, re-check these. See CLAUDE.md "Sharp edges" #1.
