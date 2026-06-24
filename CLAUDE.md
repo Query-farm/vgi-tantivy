@@ -14,7 +14,7 @@ over Arrow IPC. Built on the `vgi` crate (crates.io), modeled on `vgi-code` /
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.5.0", tantivy = "=0.24.2"
+Cargo.toml                          workspace; pins vgi = "0.9.0", tantivy = "=0.24.2"
 crates/tantivy-worker/
   src/main.rs                       Worker::new(); registers scalars + tables
   src/search.rs                     PURE logic (no Arrow): language registry, tokenize/stem,

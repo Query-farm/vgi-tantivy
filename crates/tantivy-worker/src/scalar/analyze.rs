@@ -9,7 +9,10 @@
 use std::sync::Arc;
 
 use arrow_array::builder::StringBuilder;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{
@@ -35,6 +38,13 @@ impl ScalarFunction for Tokenize {
                 "Tokenize text with the default tokenizer (unicode words, lowercased) as VARCHAR[]"
                     .into(),
             return_type: Some(list_varchar_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tantivy.main.tokenize('Running quickly, CATS!');".into(),
+                description: "Tokenize text into lowercased unicode word tokens \
+                              (['running','quickly','cats'])."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -84,6 +94,12 @@ impl ScalarFunction for TokenizeLang {
                 "Tokenize text with the given language's Snowball-stemming tokenizer, as VARCHAR[]"
                     .into(),
             return_type: Some(list_varchar_type()),
+            examples: vec![FunctionExample {
+                sql: "SELECT tantivy.main.tokenize('Running quickly', 'english');".into(),
+                description: "Tokenize and Snowball-stem text for a language (['run','quickli'])."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }
@@ -137,6 +153,12 @@ impl ScalarFunction for Stem {
             description: "Snowball-stem a single word for the given language (e.g. running → run)"
                 .into(),
             return_type: Some(arrow_schema::DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT tantivy.main.stem('running', 'english');".into(),
+                description: "Snowball-stem a word to its root for a language ('running' → 'run')."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

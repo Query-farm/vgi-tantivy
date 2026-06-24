@@ -33,7 +33,7 @@ use arrow_array::builder::{Float64Builder, Int64Builder};
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::{DataType, Field, Schema, SchemaRef};
 use vgi::table_function::{TableFunction, TableProducer};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams};
 use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::search::{self, Hit};
@@ -69,6 +69,24 @@ impl TableFunction for Bm25Search {
             description:
                 "BM25 full-text ranking of a JSON document corpus against a query, as (doc_id, score) rows"
                     .into(),
+            examples: vec![FunctionExample {
+                sql: "SELECT * FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat');"
+                    .into(),
+                description: "Rank a JSON corpus of documents by BM25 relevance to a query, \
+                              returning one (doc_id, score) row per match, best first."
+                    .into(),
+                expected_output: None,
+            }],
+            tags: vec![(
+                "vgi.columns_md".into(),
+                "| column | type | description |\n\
+                 |---|---|---|\n\
+                 | `doc_id` | BIGINT | Document id — the 0-based corpus index, or the explicit \
+                 `id` from `{id,text}` objects. |\n\
+                 | `score` | DOUBLE | BM25 relevance score; higher is more relevant. Ties broken \
+                 by ascending `doc_id`. |"
+                    .into(),
+            )],
             ..Default::default()
         }
     }

@@ -12,7 +12,10 @@ use std::sync::Arc;
 use arrow_array::builder::Float64Builder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -39,6 +42,13 @@ impl ScalarFunction for Bm25Score {
                 "Ad-hoc BM25 score of a single document against a query (1-doc index; 0.0 if no match)"
                     .into(),
             return_type: Some(DataType::Float64),
+            examples: vec![FunctionExample {
+                sql: "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat');".into(),
+                description: "Ad-hoc BM25 relevance of a single document against a query \
+                              (> 0.0 when it matches, 0.0 otherwise)."
+                    .into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

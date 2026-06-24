@@ -5,7 +5,10 @@ use std::sync::Arc;
 
 use arrow_array::{ArrayRef, RecordBatch, StringArray};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 pub struct TantivyVersion;
@@ -19,6 +22,11 @@ impl ScalarFunction for TantivyVersion {
         FunctionMetadata {
             description: "Returns the tantivy engine version and index-format string".into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: "SELECT tantivy.main.tantivy_version();".into(),
+                description: "Return the tantivy engine version and index-format string.".into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

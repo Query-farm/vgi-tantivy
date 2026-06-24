@@ -8,7 +8,7 @@ use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::{DataType, Field, Schema, SchemaRef};
 use vgi::table_function::{TableFunction, TableProducer};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams};
 use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::search;
@@ -27,6 +27,21 @@ impl TableFunction for SupportedLanguages {
     fn metadata(&self) -> FunctionMetadata {
         FunctionMetadata {
             description: "List the Snowball stemmer language ids this worker supports".into(),
+            examples: vec![FunctionExample {
+                sql: "SELECT * FROM tantivy.main.supported_languages();".into(),
+                description: "List the Snowball stemmer language ids usable with `tokenize`, \
+                              `stem`, and the search analyzer."
+                    .into(),
+                expected_output: None,
+            }],
+            tags: vec![(
+                "vgi.columns_md".into(),
+                "| column | type | description |\n\
+                 |---|---|---|\n\
+                 | `lang` | VARCHAR | A supported Snowball stemmer language id, e.g. `english`, \
+                 `french`, `german`. |"
+                    .into(),
+            )],
             ..Default::default()
         }
     }
