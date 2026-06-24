@@ -135,7 +135,7 @@ impl TableFunction for Bm25Search {
                     "table/bm25_search.rs",
                 );
                 tags.push((
-                    "vgi.columns_md".into(),
+                    "vgi.result_columns_md".into(),
                     "| column | type | description |\n\
                      |---|---|---|\n\
                      | `doc_id` | BIGINT | Document id — the 0-based corpus index, or the explicit \

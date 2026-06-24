@@ -47,7 +47,7 @@ impl TableFunction for SupportedLanguages {
                     "table/supported_languages.rs",
                 );
                 tags.push((
-                    "vgi.columns_md".into(),
+                    "vgi.result_columns_md".into(),
                     "| column | type | description |\n\
                      |---|---|---|\n\
                      | `lang` | VARCHAR | A supported Snowball stemmer language id, e.g. `english`, \

@@ -66,7 +66,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_llm".to_string(),
+                "vgi.doc_llm".to_string(),
                 "Rank a corpus of documents against a full-text query by BM25 relevance, score a \
                  single document ad-hoc, tokenize text into terms (optionally with a language \
                  stemmer), and Snowball-stem individual words. Use for full-text search, relevance \
@@ -75,13 +75,27 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_md".to_string(),
-                "# tantivy\n\nFull-text search (BM25 ranking) plus tokenization and Snowball \
-                 stemming over Apache Arrow, powered by the \
-                 [tantivy](https://github.com/quickwit-oss/tantivy) search engine.\n\nScalars: \
-                 `tokenize` (1- and 2-arg), `stem`, `bm25_score`, `tantivy_version`. Tables: \
-                 `bm25_search`, `supported_languages`. Every index is built in a RAM directory per \
-                 call and never persisted."
+                "vgi.doc_md".to_string(),
+                "# tantivy\n\nIn-database **full-text search and text analysis** for DuckDB, \
+                 powered by the [tantivy](https://github.com/quickwit-oss/tantivy) search engine \
+                 and served over Apache Arrow IPC.\n\n\
+                 ## What it does\n\n\
+                 - **Relevance ranking** — `bm25_search` ranks a JSON document corpus against a \
+                 query with the BM25 scoring model and returns `(doc_id, score)` rows, best match \
+                 first.\n\
+                 - **Ad-hoc scoring** — `bm25_score` gives a quick single-document relevance probe.\n\
+                 - **Text analysis** — `tokenize` (with an optional language stemmer) splits text \
+                 into terms, and `stem` reduces a single word to its Snowball root.\n\
+                 - **Discovery** — `supported_languages` lists the stemmer languages and \
+                 `tantivy_version` reports the engine/index-format version.\n\n\
+                 ## When to use it\n\n\
+                 Reach for this worker to add lexical (keyword) search, relevance ranking, and \
+                 query-time text normalization to SQL pipelines without standing up a separate \
+                 search service.\n\n\
+                 ## Notes\n\n\
+                 Every index is built in a RAM directory **per call** and dropped immediately — \
+                 nothing is persisted or shared across calls. Corpora are passed inline as constant \
+                 JSON, so the examples run with no external state."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -124,7 +138,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         .to_string(),
                 ),
                 (
-                    "vgi.description_llm".to_string(),
+                    "vgi.doc_llm".to_string(),
                     "Full-text search and text-analysis functions: rank a JSON document corpus by \
                      BM25 relevance, score a single document ad-hoc, tokenize text (optionally \
                      with a language stemmer), Snowball-stem words, and list supported stemmer \
@@ -132,9 +146,22 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         .to_string(),
                 ),
                 (
-                    "vgi.description_md".to_string(),
-                    "Full-text search (BM25), relevance scoring, tokenization, and Snowball \
-                     stemming over Apache Arrow."
+                    "vgi.doc_md".to_string(),
+                    "## tantivy.main\n\nThe single schema of the `tantivy` worker, grouping its \
+                     full-text search and text-analysis functions.\n\n\
+                     **Search & scoring**\n\
+                     - `bm25_search(docs_json, query)` — table function ranking a JSON corpus by \
+                     BM25 relevance.\n\
+                     - `bm25_score(doc, query)` — scalar ad-hoc relevance probe for one document.\n\n\
+                     **Text analysis**\n\
+                     - `tokenize(text[, lang])` — split text into terms, optionally with a language \
+                     stemmer.\n\
+                     - `stem(word, lang)` — Snowball-stem a single word.\n\n\
+                     **Discovery**\n\
+                     - `supported_languages()` — list the stemmer language ids.\n\
+                     - `tantivy_version()` — report the engine and index-format version.\n\n\
+                     All functions are deterministic given their inputs and need no persisted \
+                     state."
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.
