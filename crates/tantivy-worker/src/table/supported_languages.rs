@@ -34,14 +34,28 @@ impl TableFunction for SupportedLanguages {
                     .into(),
                 expected_output: None,
             }],
-            tags: vec![(
-                "vgi.columns_md".into(),
-                "| column | type | description |\n\
-                 |---|---|---|\n\
-                 | `lang` | VARCHAR | A supported Snowball stemmer language id, e.g. `english`, \
-                 `french`, `german`. |"
-                    .into(),
-            )],
+            tags: {
+                let mut tags = crate::meta::object_tags(
+                    "Supported Stemmer Languages",
+                    "List the Snowball stemmer language ids this worker supports. These are the \
+                     valid `lang` values for tokenize(text, lang), stem(word, lang), and the \
+                     internal search analyzer. Use it to discover which languages are available.",
+                    "List the supported Snowball stemmer language ids, usable with `tokenize`, \
+                     `stem`, and the search analyzer. Column: `lang`.",
+                    "supported languages, stemmer languages, snowball languages, available \
+                     languages, language list, discovery, tokenize languages, stem languages",
+                    "table/supported_languages.rs",
+                );
+                tags.push((
+                    "vgi.columns_md".into(),
+                    "| column | type | description |\n\
+                     |---|---|---|\n\
+                     | `lang` | VARCHAR | A supported Snowball stemmer language id, e.g. `english`, \
+                     `french`, `german`. |"
+                        .into(),
+                ));
+                tags
+            },
             ..Default::default()
         }
     }

@@ -49,6 +49,19 @@ impl ScalarFunction for Bm25Score {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "BM25 Single-Document Score",
+                "Compute an ad-hoc BM25 relevance score for one document against a query string, \
+                 using the English stemmer and a throwaway 1-document index. Returns 0.0 when the \
+                 document does not match the query. Because BM25 statistics depend on the whole \
+                 corpus, scores are NOT comparable across rows — use bm25_search to rank a real \
+                 corpus. NULL document or query → NULL.",
+                "Ad-hoc BM25 score of a single document against a query, e.g. \
+                 `bm25_score('the cat sat on the mat', 'cat')` (> 0.0 on match, 0.0 otherwise).",
+                "bm25, bm25 score, relevance score, single document, ad-hoc score, full-text \
+                 match, scoring, ranking probe, query match",
+                "scalar/score.rs",
+            ),
             ..Default::default()
         }
     }

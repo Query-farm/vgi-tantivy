@@ -28,6 +28,7 @@
 //! ephemeral-index semantics).
 
 mod arrow_io;
+mod meta;
 mod scalar;
 mod search;
 mod table;
@@ -54,6 +55,16 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 .to_string(),
         ),
         tags: vec![
+            (
+                "vgi.title".to_string(),
+                "Full-Text Search & Text Analysis".to_string(),
+            ),
+            (
+                "vgi.keywords".to_string(),
+                "full-text search, BM25, relevance ranking, tantivy, tokenize, tokenization, \
+                 stemming, snowball stemmer, text analysis, search, scoring, information retrieval"
+                    .to_string(),
+            ),
             (
                 "vgi.description_llm".to_string(),
                 "Rank a corpus of documents against a full-text query by BM25 relevance, score a \
@@ -95,6 +106,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "Full-text search, relevance scoring, and text-analysis functions.".to_string(),
             ),
             tags: vec![
+                ("vgi.title".to_string(), "Tantivy — main".to_string()),
+                (
+                    "vgi.keywords".to_string(),
+                    "full-text search, BM25, bm25_search, bm25_score, tokenize, stem, stemming, \
+                     supported_languages, tantivy_version, relevance ranking, text analysis, \
+                     information retrieval"
+                        .to_string(),
+                ),
+                // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
+                ("domain".to_string(), "search".to_string()),
+                ("category".to_string(), "full-text-search".to_string()),
+                ("topic".to_string(), "bm25-ranking".to_string()),
+                (
+                    "vgi.source_url".to_string(),
+                    "https://github.com/Query-farm/vgi-tantivy/blob/main/crates/tantivy-worker/src/main.rs"
+                        .to_string(),
+                ),
                 (
                     "vgi.description_llm".to_string(),
                     "Full-text search and text-analysis functions: rank a JSON document corpus by \
@@ -107,6 +135,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     "vgi.description_md".to_string(),
                     "Full-text search (BM25), relevance scoring, tokenization, and Snowball \
                      stemming over Apache Arrow."
+                        .to_string(),
+                ),
+                // VGI506 representative example queries for the schema.
+                (
+                    "vgi.example_queries".to_string(),
+                    "SELECT * FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat');\n\
+                     SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat');\n\
+                     SELECT tantivy.main.tokenize('Running quickly, CATS!');\n\
+                     SELECT tantivy.main.tokenize('Running quickly', 'english');\n\
+                     SELECT tantivy.main.stem('running', 'english');\n\
+                     SELECT * FROM tantivy.main.supported_languages();\n\
+                     SELECT tantivy.main.tantivy_version();"
                         .to_string(),
                 ),
             ],

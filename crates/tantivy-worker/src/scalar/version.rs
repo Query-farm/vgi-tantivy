@@ -27,6 +27,17 @@ impl ScalarFunction for TantivyVersion {
                 description: "Return the tantivy engine version and index-format string.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tantivy Engine Version",
+                "Return the version string of the underlying tantivy full-text search engine and \
+                 its on-disk index format, e.g. 'tantivy v0.24.2, index_format v7'. Use it to \
+                 confirm which search-engine version backs this worker.",
+                "Return the tantivy engine version and index-format string, e.g. \
+                 `tantivy v0.24.2, index_format v7`.",
+                "tantivy version, engine version, index format, build info, version string, \
+                 about, diagnostics",
+                "scalar/version.rs",
+            ),
             ..Default::default()
         }
     }

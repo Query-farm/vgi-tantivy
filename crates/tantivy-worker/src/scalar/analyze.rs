@@ -45,6 +45,17 @@ impl ScalarFunction for Tokenize {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tokenize Text (Default)",
+                "Split text into lowercased unicode word tokens using the default tokenizer (no \
+                 stemming): unicode word segmentation, lowercasing, and overly long tokens \
+                 dropped. Returns the tokens as a VARCHAR array. Returns NULL for NULL input.",
+                "Tokenize text into lowercased unicode word tokens, e.g. \
+                 `tokenize('Running quickly, CATS!')` → `['running','quickly','cats']`.",
+                "tokenize, tokenization, tokens, split words, word segmentation, lowercase, \
+                 analyzer, text analysis, terms",
+                "scalar/analyze.rs",
+            ),
             ..Default::default()
         }
     }
@@ -100,6 +111,18 @@ impl ScalarFunction for TokenizeLang {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Tokenize Text With Language Stemmer",
+                "Split text into tokens and Snowball-stem each one for the given language, so word \
+                 variants collapse to a shared root (e.g. 'Running quickly' → ['run','quickli'] in \
+                 English). Returns the tokens as a VARCHAR array. NULL text or language → NULL; an \
+                 unknown language is a clear error.",
+                "Tokenize and language-stem text, e.g. \
+                 `tokenize('Running quickly', 'english')` → `['run','quickli']`.",
+                "tokenize, stemming tokenizer, snowball, language tokenizer, stem tokens, \
+                 lemmatize, analyzer, multilingual, text analysis",
+                "scalar/analyze.rs",
+            ),
             ..Default::default()
         }
     }
@@ -159,6 +182,17 @@ impl ScalarFunction for Stem {
                     .into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Stem Single Word",
+                "Reduce a single word to its Snowball stem (root) for the given language, e.g. \
+                 'running' → 'run' in English. Useful for normalizing terms before matching or \
+                 grouping. NULL word or language → NULL; an unknown language is a clear error.",
+                "Snowball-stem one word to its root for a language, e.g. \
+                 `stem('running', 'english')` → `run`.",
+                "stem, stemming, snowball, root word, lemmatize, normalize term, word root, \
+                 morphology, language",
+                "scalar/analyze.rs",
+            ),
             ..Default::default()
         }
     }

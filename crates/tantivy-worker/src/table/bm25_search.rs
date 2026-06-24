@@ -43,6 +43,47 @@ use crate::search::{self, Hit};
 /// `tokenize`/`stem`.
 const SEARCH_LANG: &str = "english";
 
+/// Guaranteed-runnable, catalog-qualified examples (VGI509). Each `sql` is
+/// self-contained and re-runnable against an attached `tantivy` worker — the
+/// corpus is passed inline as a constant JSON payload, so no external table or
+/// extension is required. `expected_result` is deliberately omitted: the linter
+/// only needs each query to execute cleanly, and pinning exact BM25 floats would
+/// be brittle.
+const EXECUTABLE_EXAMPLES: &str = r#"[
+  {
+    "description": "Rank a small JSON corpus by BM25 relevance to a query.",
+    "sql": "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"a cat and a dog\"]', 'cat') ORDER BY score DESC, doc_id"
+  },
+  {
+    "description": "Rank a corpus carrying explicit document ids.",
+    "sql": "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"}]', 'cat')"
+  },
+  {
+    "description": "Ad-hoc BM25 score of a single document against a query.",
+    "sql": "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"
+  },
+  {
+    "description": "Tokenize text into lowercased unicode word tokens.",
+    "sql": "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens"
+  },
+  {
+    "description": "Tokenize and Snowball-stem text for a language.",
+    "sql": "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"
+  },
+  {
+    "description": "Snowball-stem a single word for a language.",
+    "sql": "SELECT tantivy.main.stem('running', 'english') AS root"
+  },
+  {
+    "description": "List the supported Snowball stemmer languages.",
+    "sql": "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5"
+  },
+  {
+    "description": "Report the tantivy engine and index-format version.",
+    "sql": "SELECT tantivy.main.tantivy_version() AS version"
+  }
+]"#;
+
 /// Upper bound on the number of ranked hits returned.
 const RESULT_LIMIT: usize = 10_000;
 
@@ -77,16 +118,35 @@ impl TableFunction for Bm25Search {
                     .into(),
                 expected_output: None,
             }],
-            tags: vec![(
-                "vgi.columns_md".into(),
-                "| column | type | description |\n\
-                 |---|---|---|\n\
-                 | `doc_id` | BIGINT | Document id — the 0-based corpus index, or the explicit \
-                 `id` from `{id,text}` objects. |\n\
-                 | `score` | DOUBLE | BM25 relevance score; higher is more relevant. Ties broken \
-                 by ascending `doc_id`. |"
-                    .into(),
-            )],
+            tags: {
+                let mut tags = crate::meta::object_tags(
+                    "BM25 Corpus Search & Ranking",
+                    "Rank a corpus of documents against a full-text query by BM25 relevance, using \
+                     an ephemeral in-RAM tantivy index built per call (English stemmer). The \
+                     corpus is a constant JSON payload: a JSON array of strings (doc_id = array \
+                     index) or of {id,text} objects (explicit doc_id). Returns one (doc_id, score) \
+                     row per matching document, best score first. NULL/empty corpus or blank query \
+                     → no rows; malformed JSON or an unparseable query is a clear error.",
+                    "Rank a JSON document corpus by BM25 relevance to a query, returning \
+                     `(doc_id, score)` rows best-first, e.g. \
+                     `bm25_search('[\"the cat sat\",\"dogs bark\"]', 'cat')`.",
+                    "bm25, bm25_search, full-text search, corpus ranking, relevance ranking, \
+                     document search, search, retrieval, ranked results, scoring, query",
+                    "table/bm25_search.rs",
+                );
+                tags.push((
+                    "vgi.columns_md".into(),
+                    "| column | type | description |\n\
+                     |---|---|---|\n\
+                     | `doc_id` | BIGINT | Document id — the 0-based corpus index, or the explicit \
+                     `id` from `{id,text}` objects. |\n\
+                     | `score` | DOUBLE | BM25 relevance score; higher is more relevant. Ties broken \
+                     by ascending `doc_id`. |"
+                        .into(),
+                ));
+                tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
+                tags
+            },
             ..Default::default()
         }
     }
