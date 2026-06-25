@@ -61,9 +61,20 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.keywords".to_string(),
-                "full-text search, BM25, relevance ranking, tantivy, tokenize, tokenization, \
-                 stemming, snowball stemmer, text analysis, search, scoring, information retrieval"
-                    .to_string(),
+                meta::keywords_json(&[
+                    "full-text search",
+                    "BM25",
+                    "relevance ranking",
+                    "tantivy",
+                    "tokenize",
+                    "tokenization",
+                    "stemming",
+                    "snowball stemmer",
+                    "text analysis",
+                    "search",
+                    "scoring",
+                    "information retrieval",
+                ]),
             ),
             (
                 "vgi.doc_llm".to_string(),
@@ -123,20 +134,25 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("vgi.title".to_string(), "Tantivy — main".to_string()),
                 (
                     "vgi.keywords".to_string(),
-                    "full-text search, BM25, bm25_search, bm25_score, tokenize, stem, stemming, \
-                     supported_languages, tantivy_version, relevance ranking, text analysis, \
-                     information retrieval"
-                        .to_string(),
+                    meta::keywords_json(&[
+                        "full-text search",
+                        "BM25",
+                        "bm25_search",
+                        "bm25_score",
+                        "tokenize",
+                        "stem",
+                        "stemming",
+                        "supported_languages",
+                        "tantivy_version",
+                        "relevance ranking",
+                        "text analysis",
+                        "information retrieval",
+                    ]),
                 ),
                 // VGI123 classifying tags (bare keys: domain/category/topic) for faceting.
                 ("domain".to_string(), "search".to_string()),
                 ("category".to_string(), "full-text-search".to_string()),
                 ("topic".to_string(), "bm25-ranking".to_string()),
-                (
-                    "vgi.source_url".to_string(),
-                    "https://github.com/Query-farm/vgi-tantivy/blob/main/crates/tantivy-worker/src/main.rs"
-                        .to_string(),
-                ),
                 (
                     "vgi.doc_llm".to_string(),
                     "Full-text search and text-analysis functions: rank a JSON document corpus by \
@@ -179,7 +195,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ],
             views: Vec::new(),
             macros: Vec::new(),
-            tables: Vec::new(),
+            // Expose the parameterless `supported_languages()` table function as a
+            // regular table so it is usable as `SELECT * FROM tantivy.main.supported_languages`
+            // (no parentheses) — VGI311.
+            tables: vec![table::supported_languages_table()],
         }],
         ..Default::default()
     }

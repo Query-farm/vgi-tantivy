@@ -34,9 +34,15 @@ impl ScalarFunction for TantivyVersion {
                  confirm which search-engine version backs this worker.",
                 "Return the tantivy engine version and index-format string, e.g. \
                  `tantivy v0.24.2, index_format v7`.",
-                "tantivy version, engine version, index format, build info, version string, \
-                 about, diagnostics",
-                "scalar/version.rs",
+                &[
+                    "tantivy version",
+                    "engine version",
+                    "index format",
+                    "build info",
+                    "version string",
+                    "about",
+                    "diagnostics",
+                ],
             ),
             ..Default::default()
         }

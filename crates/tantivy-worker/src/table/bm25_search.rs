@@ -130,9 +130,19 @@ impl TableFunction for Bm25Search {
                     "Rank a JSON document corpus by BM25 relevance to a query, returning \
                      `(doc_id, score)` rows best-first, e.g. \
                      `bm25_search('[\"the cat sat\",\"dogs bark\"]', 'cat')`.",
-                    "bm25, bm25_search, full-text search, corpus ranking, relevance ranking, \
-                     document search, search, retrieval, ranked results, scoring, query",
-                    "table/bm25_search.rs",
+                    &[
+                        "bm25",
+                        "bm25_search",
+                        "full-text search",
+                        "corpus ranking",
+                        "relevance ranking",
+                        "document search",
+                        "search",
+                        "retrieval",
+                        "ranked results",
+                        "scoring",
+                        "query",
+                    ],
                 );
                 tags.push((
                     "vgi.result_columns_md".into(),

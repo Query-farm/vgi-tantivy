@@ -15,8 +15,20 @@ use crate::search;
 
 pub struct SupportedLanguages;
 
-fn output_schema() -> SchemaRef {
-    Arc::new(Schema::new(vec![Field::new("lang", DataType::Utf8, false)]))
+pub(crate) fn output_schema() -> SchemaRef {
+    // The `lang` column carries a `comment` in its field metadata (surfaced via
+    // `duckdb_columns().comment`, VGI201/VGI202) so the column is documented when
+    // `supported_languages` is exposed as a regular table.
+    let lang =
+        Field::new("lang", DataType::Utf8, false).with_metadata(std::collections::HashMap::from([
+            (
+                "comment".to_string(),
+                "A supported Snowball stemmer language id, e.g. 'english', 'french', 'german'; \
+             a valid `lang` value for tokenize(text, lang) and stem(word, lang)."
+                    .to_string(),
+            ),
+        ]));
+    Arc::new(Schema::new(vec![lang]))
 }
 
 impl TableFunction for SupportedLanguages {
@@ -42,9 +54,16 @@ impl TableFunction for SupportedLanguages {
                      internal search analyzer. Use it to discover which languages are available.",
                     "List the supported Snowball stemmer language ids, usable with `tokenize`, \
                      `stem`, and the search analyzer. Column: `lang`.",
-                    "supported languages, stemmer languages, snowball languages, available \
-                     languages, language list, discovery, tokenize languages, stem languages",
-                    "table/supported_languages.rs",
+                    &[
+                        "supported languages",
+                        "stemmer languages",
+                        "snowball languages",
+                        "available languages",
+                        "language list",
+                        "discovery",
+                        "tokenize languages",
+                        "stem languages",
+                    ],
                 );
                 tags.push((
                     "vgi.result_columns_md".into(),

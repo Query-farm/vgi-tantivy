@@ -5,37 +5,36 @@
 //! - `vgi.title` (VGI124)        — human-friendly display name
 //! - `vgi.doc_llm` (VGI112)      — Markdown narrative aimed at LLMs/agents
 //! - `vgi.doc_md` (VGI113)       — Markdown narrative for human docs
-//! - `vgi.keywords` (VGI126)        — comma-separated search terms/synonyms
-//! - `vgi.source_url` (VGI128)      — link to the implementing source file
+//! - `vgi.keywords` (VGI126)        — JSON array of search terms/synonyms
 //!
-//! `source_url(file)` builds the canonical GitHub blob URL for a source file so
-//! every object points at exactly where it is implemented.
+//! `vgi.source_url` (VGI139) is intentionally NOT set per object — it belongs
+//! only on the catalog object, which carries the repo URL.
+//!
+//! `keywords_json(&[…])` serializes a keyword list as a JSON array of strings,
+//! the form `vgi.keywords` requires (VGI138).
 
-/// Base GitHub blob URL for source files in this repo (pinned to `main`).
-const SOURCE_BASE: &str =
-    "https://github.com/Query-farm/vgi-tantivy/blob/main/crates/tantivy-worker/src";
-
-/// Build the implementation `vgi.source_url` for a file under `tantivy-worker/src`,
-/// e.g. `source_url("scalar/analyze.rs")`.
-pub fn source_url(relative_path: &str) -> String {
-    format!("{SOURCE_BASE}/{relative_path}")
+/// Serialize a keyword list as a JSON array of strings, e.g.
+/// `keywords_json(&["bm25", "search"])` → `["bm25","search"]`. This is the form
+/// `vgi.keywords` must take (VGI138); a comma-separated string is rejected.
+pub fn keywords_json(keywords: &[&str]) -> String {
+    serde_json::to_string(keywords).expect("serializing &str slice to JSON never fails")
 }
 
-/// Build the five standard per-object discovery/description tags.
+/// Build the four standard per-object discovery/description tags.
 ///
-/// `relative_path` is the implementing file relative to `tantivy-worker/src`.
+/// `keywords` is a slice of search terms/synonyms, serialized to a JSON array of
+/// strings (VGI138). `vgi.source_url` is deliberately omitted (VGI139): it lives
+/// only on the catalog object.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
-    keywords: &str,
-    relative_path: &str,
+    keywords: &[&str],
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
-        ("vgi.keywords".to_string(), keywords.to_string()),
-        ("vgi.source_url".to_string(), source_url(relative_path)),
+        ("vgi.keywords".to_string(), keywords_json(keywords)),
     ]
 }

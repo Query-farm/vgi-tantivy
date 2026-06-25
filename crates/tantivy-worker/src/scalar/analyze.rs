@@ -52,16 +52,29 @@ impl ScalarFunction for Tokenize {
                  dropped. Returns the tokens as a VARCHAR array. Returns NULL for NULL input.",
                 "Tokenize text into lowercased unicode word tokens, e.g. \
                  `tokenize('Running quickly, CATS!')` → `['running','quickly','cats']`.",
-                "tokenize, tokenization, tokens, split words, word segmentation, lowercase, \
-                 analyzer, text analysis, terms",
-                "scalar/analyze.rs",
+                &[
+                    "tokenize",
+                    "tokenization",
+                    "tokens",
+                    "split words",
+                    "word segmentation",
+                    "lowercase",
+                    "analyzer",
+                    "text analysis",
+                    "terms",
+                ],
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)")]
+        vec![ArgSpec::column(
+            "text",
+            0,
+            "varchar",
+            "The text to split into tokens",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {
@@ -119,9 +132,17 @@ impl ScalarFunction for TokenizeLang {
                  unknown language is a clear error.",
                 "Tokenize and language-stem text, e.g. \
                  `tokenize('Running quickly', 'english')` → `['run','quickli']`.",
-                "tokenize, stemming tokenizer, snowball, language tokenizer, stem tokens, \
-                 lemmatize, analyzer, multilingual, text analysis",
-                "scalar/analyze.rs",
+                &[
+                    "tokenize",
+                    "stemming tokenizer",
+                    "snowball",
+                    "language tokenizer",
+                    "stem tokens",
+                    "lemmatize",
+                    "analyzer",
+                    "multilingual",
+                    "text analysis",
+                ],
             ),
             ..Default::default()
         }
@@ -129,8 +150,14 @@ impl ScalarFunction for TokenizeLang {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("text", 0, "Text to tokenize (VARCHAR)"),
-            ArgSpec::any_column("lang", 1, "Stemmer language, e.g. 'english' (VARCHAR)"),
+            ArgSpec::column("text", 0, "varchar", "The text to split into tokens"),
+            ArgSpec::column(
+                "lang",
+                1,
+                "varchar",
+                "Snowball stemmer language to apply to each token, e.g. 'english'; \
+                 call supported_languages() for the valid ids",
+            ),
         ]
     }
 
@@ -189,9 +216,17 @@ impl ScalarFunction for Stem {
                  grouping. NULL word or language → NULL; an unknown language is a clear error.",
                 "Snowball-stem one word to its root for a language, e.g. \
                  `stem('running', 'english')` → `run`.",
-                "stem, stemming, snowball, root word, lemmatize, normalize term, word root, \
-                 morphology, language",
-                "scalar/analyze.rs",
+                &[
+                    "stem",
+                    "stemming",
+                    "snowball",
+                    "root word",
+                    "lemmatize",
+                    "normalize term",
+                    "word root",
+                    "morphology",
+                    "language",
+                ],
             ),
             ..Default::default()
         }
@@ -199,8 +234,19 @@ impl ScalarFunction for Stem {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("word", 0, "Word to stem (VARCHAR)"),
-            ArgSpec::any_column("lang", 1, "Stemmer language, e.g. 'english' (VARCHAR)"),
+            ArgSpec::column(
+                "word",
+                0,
+                "varchar",
+                "The single word to reduce to its stem",
+            ),
+            ArgSpec::column(
+                "lang",
+                1,
+                "varchar",
+                "Snowball stemmer language to stem the word with, e.g. 'english'; \
+                 call supported_languages() for the valid ids",
+            ),
         ]
     }
 

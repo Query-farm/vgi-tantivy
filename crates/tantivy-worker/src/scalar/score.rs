@@ -58,9 +58,17 @@ impl ScalarFunction for Bm25Score {
                  corpus. NULL document or query → NULL.",
                 "Ad-hoc BM25 score of a single document against a query, e.g. \
                  `bm25_score('the cat sat on the mat', 'cat')` (> 0.0 on match, 0.0 otherwise).",
-                "bm25, bm25 score, relevance score, single document, ad-hoc score, full-text \
-                 match, scoring, ranking probe, query match",
-                "scalar/score.rs",
+                &[
+                    "bm25",
+                    "bm25 score",
+                    "relevance score",
+                    "single document",
+                    "ad-hoc score",
+                    "full-text match",
+                    "scoring",
+                    "ranking probe",
+                    "query match",
+                ],
             ),
             ..Default::default()
         }
@@ -68,8 +76,18 @@ impl ScalarFunction for Bm25Score {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         vec![
-            ArgSpec::any_column("doc_text", 0, "Document text (VARCHAR)"),
-            ArgSpec::any_column("query", 1, "Query string (VARCHAR)"),
+            ArgSpec::column(
+                "doc_text",
+                0,
+                "varchar",
+                "The single document body to score against the query",
+            ),
+            ArgSpec::column(
+                "query",
+                1,
+                "varchar",
+                "The full-text query whose terms are matched against the document",
+            ),
         ]
     }
 
