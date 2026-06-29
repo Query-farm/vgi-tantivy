@@ -88,6 +88,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.doc_md".to_string(),
                 "# tantivy — Full-Text Search & Text Analysis in SQL\n\n\
+                 ![tantivy logo](https://tantivy-search.github.io/logo/tantivy-logo.png)\n\n\
                  Add **BM25 full-text search**, relevance ranking, and query-time text analysis \
                  (tokenization and Snowball stemming) directly to DuckDB SQL — no separate search \
                  service, index server, or ETL pipeline required. The `tantivy` worker is a \
