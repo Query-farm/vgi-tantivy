@@ -87,26 +87,46 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.doc_md".to_string(),
-                "# tantivy\n\nIn-database **full-text search and text analysis** for DuckDB, \
-                 powered by the [tantivy](https://github.com/quickwit-oss/tantivy) search engine \
-                 and served over Apache Arrow IPC.\n\n\
-                 ## What it does\n\n\
-                 - **Relevance ranking** — `bm25_search` ranks a JSON document corpus against a \
-                 query with the BM25 scoring model and returns `(doc_id, score)` rows, best match \
-                 first.\n\
-                 - **Ad-hoc scoring** — `bm25_score` gives a quick single-document relevance probe.\n\
-                 - **Text analysis** — `tokenize` (with an optional language stemmer) splits text \
-                 into terms, and `stem` reduces a single word to its Snowball root.\n\
-                 - **Discovery** — `supported_languages` lists the stemmer languages and \
-                 `tantivy_version` reports the engine/index-format version.\n\n\
-                 ## When to use it\n\n\
-                 Reach for this worker to add lexical (keyword) search, relevance ranking, and \
-                 query-time text normalization to SQL pipelines without standing up a separate \
-                 search service.\n\n\
-                 ## Notes\n\n\
-                 Every index is built in a RAM directory **per call** and dropped immediately — \
-                 nothing is persisted or shared across calls. Corpora are passed inline as constant \
-                 JSON, so the examples run with no external state."
+                "# tantivy — Full-Text Search & Text Analysis in SQL\n\n\
+                 Add **BM25 full-text search**, relevance ranking, and query-time text analysis \
+                 (tokenization and Snowball stemming) directly to DuckDB SQL — no separate search \
+                 service, index server, or ETL pipeline required. The `tantivy` worker is a \
+                 standalone VGI worker that DuckDB attaches over Apache Arrow, exposing lexical \
+                 (keyword) search and text-normalization functions you can call inline from any \
+                 query.\n\n\
+                 ## How it works\n\n\
+                 Every function is powered by \
+                 [tantivy](https://github.com/quickwit-oss/tantivy), the fast full-text search \
+                 engine written in Rust (the library behind Quickwit), documented at \
+                 [docs.rs/tantivy](https://docs.rs/tantivy/latest/tantivy/). For each \
+                 `bm25_search` / `bm25_score` call the worker builds a fresh in-RAM tantivy index, \
+                 registers the appropriate per-language analyzer (simple tokenizer + lowercasing + \
+                 a Snowball stemmer), indexes your documents, runs the query through tantivy's \
+                 query parser and top-docs collector, and drops the index when the call returns. \
+                 Nothing is persisted or shared between calls, so results are fully deterministic \
+                 and there is no external state to manage. Relevance is computed with the \
+                 industry-standard [Okapi BM25](https://en.wikipedia.org/wiki/Okapi_BM25) ranking \
+                 model, and stemming uses the [Snowball](https://snowballstem.org/) algorithms.\n\n\
+                 ## Functions and SQL use cases\n\n\
+                 Rank a corpus with the `bm25_search(docs_json, query)` table function, which \
+                 scores an inline JSON array of documents and returns `(doc_id, score)` rows \
+                 best-match-first — ideal for ad-hoc keyword search over a column of text you have \
+                 assembled with `json_group_array`. Use the `bm25_score(doc, query)` scalar for a \
+                 quick single-document relevance probe. For text analysis, `tokenize(text)` and \
+                 `tokenize(text, lang)` split text into normalized terms (optionally applying a \
+                 language stemmer), and `stem(word, lang)` reduces a single word to its Snowball \
+                 root — handy for building search keys, deduplicating terms, or feeding downstream \
+                 NLP. Discovery helpers round out the surface: `supported_languages()` lists the \
+                 available stemmer language ids and `tantivy_version()` reports the underlying \
+                 engine and index-format version.\n\n\
+                 ## Who it's for\n\n\
+                 Reach for this worker whenever you want lightweight, embedded lexical search and \
+                 relevance ranking inside an analytical SQL workflow — log triage, document \
+                 shortlisting, fuzzy keyword matching, or normalizing text before joins and \
+                 grouping — without standing up Elasticsearch, OpenSearch, or a dedicated indexing \
+                 service. Every index is built in RAM **per call** and dropped immediately, and \
+                 corpora are passed inline as constant JSON, so queries run with no external \
+                 state."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
