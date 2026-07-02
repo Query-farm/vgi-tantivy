@@ -143,6 +143,7 @@ impl TableFunction for Bm25Search {
                         "scoring",
                         "query",
                     ],
+                    "Search & Ranking",
                 );
                 tags.push((
                     "vgi.result_columns_md".into(),

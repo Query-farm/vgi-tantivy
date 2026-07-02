@@ -43,6 +43,7 @@ impl ScalarFunction for TantivyVersion {
                     "about",
                     "diagnostics",
                 ],
+                "Discovery",
             ),
             ..Default::default()
         }

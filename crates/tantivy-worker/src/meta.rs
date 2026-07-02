@@ -20,21 +20,24 @@ pub fn keywords_json(keywords: &[&str]) -> String {
     serde_json::to_string(keywords).expect("serializing &str slice to JSON never fails")
 }
 
-/// Build the four standard per-object discovery/description tags.
+/// Build the five standard per-object discovery/description tags.
 ///
 /// `keywords` is a slice of search terms/synonyms, serialized to a JSON array of
-/// strings (VGI138). `vgi.source_url` is deliberately omitted (VGI139): it lives
-/// only on the catalog object.
+/// strings (VGI138). `category` names the schema `vgi.categories` entry this
+/// object belongs to (VGI413); it is surfaced as `vgi.category`. `vgi.source_url`
+/// is deliberately omitted (VGI139): it lives only on the catalog object.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
     keywords: &[&str],
+    category: &str,
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
         ("vgi.keywords".to_string(), keywords_json(keywords)),
+        ("vgi.category".to_string(), category.to_string()),
     ]
 }

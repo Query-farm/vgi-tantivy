@@ -82,6 +82,8 @@ pub fn supported_languages_table() -> CatTable {
         ("domain".to_string(), "search".to_string()),
         ("category".to_string(), "discovery".to_string()),
         ("topic".to_string(), "stemmer-languages".to_string()),
+        // VGI413: the schema `vgi.categories` entry this table belongs to.
+        ("vgi.category".to_string(), "Discovery".to_string()),
         (
             "vgi.example_queries".to_string(),
             r#"[

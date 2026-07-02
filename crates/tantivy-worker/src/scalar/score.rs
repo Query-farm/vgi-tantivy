@@ -69,6 +69,7 @@ impl ScalarFunction for Bm25Score {
                     "ranking probe",
                     "query match",
                 ],
+                "Search & Ranking",
             ),
             ..Default::default()
         }

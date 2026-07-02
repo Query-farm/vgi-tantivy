@@ -64,6 +64,7 @@ impl TableFunction for SupportedLanguages {
                         "tokenize languages",
                         "stem languages",
                     ],
+                    "Discovery",
                 );
                 tags.push((
                     "vgi.result_columns_md".into(),
