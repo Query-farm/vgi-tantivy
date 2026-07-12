@@ -111,10 +111,10 @@ impl TableFunction for Bm25Search {
                 "BM25 full-text ranking of a JSON document corpus against a query, as (doc_id, score) rows"
                     .into(),
             examples: vec![FunctionExample {
-                sql: "SELECT * FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat');"
+                sql: "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat') ORDER BY score DESC, doc_id;"
                     .into(),
                 description: "Rank a JSON corpus of documents by BM25 relevance to a query, \
-                              returning one (doc_id, score) row per match, best first."
+                              projecting (doc_id, score) ordered best-first."
                     .into(),
                 expected_output: None,
             }],
@@ -146,14 +146,12 @@ impl TableFunction for Bm25Search {
                     "Search & Ranking",
                 );
                 tags.push((
-                    "vgi.result_columns_md".into(),
-                    "| column | type | description |\n\
-                     |---|---|---|\n\
-                     | `doc_id` | BIGINT | Document id — the 0-based corpus index, or the explicit \
-                     `id` from `{id,text}` objects. |\n\
-                     | `score` | DOUBLE | BM25 relevance score; higher is more relevant. Ties broken \
-                     by ascending `doc_id`. |"
-                        .into(),
+                    "vgi.result_columns_schema".into(),
+                    r#"[
+  {"name": "doc_id", "type": "BIGINT", "description": "Document id — the 0-based corpus index, or the explicit id from {id,text} objects."},
+  {"name": "score", "type": "DOUBLE", "description": "BM25 relevance score; higher is more relevant. Ties are broken by ascending doc_id."}
+]"#
+                    .into(),
                 ));
                 tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
                 tags

@@ -175,6 +175,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
     "name": "list supported languages",
     "prompt": "List every Snowball stemmer language this worker supports, ordered alphabetically. Return the full list of language ids.",
     "reference_sql": "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang"
+  },
+  {
+    "name": "stem a single word",
+    "prompt": "Using this worker's single-word stemming function, reduce the individual English word 'running' to its Snowball root. Return exactly one row holding a single scalar text value — the stemmed root word itself (a plain string, not a list or array).",
+    "reference_sql": "SELECT tantivy.main.stem('running', 'english') AS root",
+    "ignore_column_names": true
+  },
+  {
+    "name": "report engine version",
+    "prompt": "Use this worker to determine whether the full-text search engine backing it is tantivy. Decide by checking whether the engine version string the worker reports starts with the text 'tantivy'. Answer with exactly one row holding a single BOOLEAN value: true if it starts with 'tantivy', false otherwise. Do not return the version string itself — return only the boolean.",
+    "reference_sql": "SELECT tantivy.main.tantivy_version() LIKE 'tantivy%' AS is_tantivy",
+    "ignore_column_names": true
   }
 ]"#
                 .to_string(),

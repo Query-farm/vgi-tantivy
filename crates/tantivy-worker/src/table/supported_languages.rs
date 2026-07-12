@@ -40,10 +40,12 @@ impl TableFunction for SupportedLanguages {
         FunctionMetadata {
             description: "List the Snowball stemmer language ids this worker supports".into(),
             examples: vec![FunctionExample {
-                sql: "SELECT * FROM tantivy.main.supported_languages();".into(),
-                description: "List the Snowball stemmer language ids usable with `tokenize`, \
-                              `stem`, and the search analyzer."
+                sql: "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5;"
                     .into(),
+                description:
+                    "List the first few Snowball stemmer language ids (usable with \
+                              `tokenize`, `stem`, and the search analyzer), ordered alphabetically."
+                        .into(),
                 expected_output: None,
             }],
             tags: {
@@ -67,12 +69,11 @@ impl TableFunction for SupportedLanguages {
                     "Discovery",
                 );
                 tags.push((
-                    "vgi.result_columns_md".into(),
-                    "| column | type | description |\n\
-                     |---|---|---|\n\
-                     | `lang` | VARCHAR | A supported Snowball stemmer language id, e.g. `english`, \
-                     `french`, `german`. |"
-                        .into(),
+                    "vgi.result_columns_schema".into(),
+                    r#"[
+  {"name": "lang", "type": "VARCHAR", "description": "A supported Snowball stemmer language id, e.g. english, french, german."}
+]"#
+                    .into(),
                 ));
                 tags
             },
