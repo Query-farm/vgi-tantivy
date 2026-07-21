@@ -12,10 +12,7 @@ use std::sync::Arc;
 use arrow_array::builder::Float64Builder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{
-    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
-    ScalarFunction,
-};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -28,6 +25,13 @@ fn ve(e: impl std::fmt::Display) -> RpcError {
 /// The fixed stemmer language for the ad-hoc scorer. English is the default; the
 /// corpus-ranking `bm25_search` table function exposes the full language choice.
 const SCORE_LANG: &str = "english";
+
+/// Shared `(description, sql)` example, used byte-identically for the native
+/// `FunctionExample` carrier and the `vgi.example_queries` tag (VGI515).
+const EXAMPLE_QUERIES: &[(&str, &str)] = &[(
+    "Ad-hoc BM25 relevance of a single document against a query.",
+    "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score",
+)];
 
 pub struct Bm25Score;
 
@@ -42,35 +46,33 @@ impl ScalarFunction for Bm25Score {
                 "Ad-hoc BM25 score of a single document against a query (1-doc index; 0.0 if no match)"
                     .into(),
             return_type: Some(DataType::Float64),
-            examples: vec![FunctionExample {
-                sql: "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat');".into(),
-                description: "Ad-hoc BM25 relevance of a single document against a query \
-                              (> 0.0 when it matches, 0.0 otherwise)."
-                    .into(),
-                expected_output: None,
-            }],
-            tags: crate::meta::object_tags(
-                "BM25 Single-Document Score",
-                "Compute an ad-hoc BM25 relevance score for one document against a query string, \
-                 using the English stemmer and a throwaway 1-document index. Returns 0.0 when the \
-                 document does not match the query. Because BM25 statistics depend on the whole \
-                 corpus, scores are NOT comparable across rows — use bm25_search to rank a real \
-                 corpus. NULL document or query → NULL.",
-                "Ad-hoc BM25 score of a single document against a query, e.g. \
-                 `bm25_score('the cat sat on the mat', 'cat')` (> 0.0 on match, 0.0 otherwise).",
-                &[
-                    "bm25",
-                    "bm25 score",
-                    "relevance score",
-                    "single document",
-                    "ad-hoc score",
-                    "full-text match",
-                    "scoring",
-                    "ranking probe",
-                    "query match",
-                ],
-                "Search & Ranking",
-            ),
+            examples: crate::meta::examples_from(EXAMPLE_QUERIES),
+            tags: {
+                let mut tags = crate::meta::object_tags(
+                    "BM25 Single-Document Score",
+                    "Compute an ad-hoc BM25 relevance score for one document against a query \
+                     string, using the English stemmer and a throwaway 1-document index. Returns \
+                     0.0 when the document does not match the query. Because BM25 statistics depend \
+                     on the whole corpus, scores are NOT comparable across rows — use bm25_search \
+                     to rank a real corpus. NULL document or query → NULL.",
+                    "Ad-hoc BM25 score of a single document against a query, e.g. \
+                     `bm25_score('the cat sat on the mat', 'cat')` (> 0.0 on match, 0.0 otherwise).",
+                    &[
+                        "bm25",
+                        "bm25 score",
+                        "relevance score",
+                        "single document",
+                        "ad-hoc score",
+                        "full-text match",
+                        "scoring",
+                        "ranking probe",
+                        "query match",
+                    ],
+                    "Search & Ranking",
+                );
+                tags.push(crate::meta::example_queries_tag(EXAMPLE_QUERIES));
+                tags
+            },
             ..Default::default()
         }
     }

@@ -8,10 +8,23 @@ use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::{DataType, Field, Schema, SchemaRef};
 use vgi::table_function::{TableFunction, TableProducer};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams};
 use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::search;
+
+/// Shared `(description, sql)` examples, used byte-identically for the native
+/// `FunctionExample` carrier and the `vgi.example_queries` tag (VGI515).
+const EXAMPLE_QUERIES: &[(&str, &str)] = &[
+    (
+        "List the first few supported Snowball stemmer languages, alphabetically.",
+        "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5",
+    ),
+    (
+        "Check whether a specific language is supported.",
+        "SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages() WHERE lang = 'english'",
+    ),
+];
 
 pub struct SupportedLanguages;
 
@@ -39,15 +52,7 @@ impl TableFunction for SupportedLanguages {
     fn metadata(&self) -> FunctionMetadata {
         FunctionMetadata {
             description: "List the Snowball stemmer language ids this worker supports".into(),
-            examples: vec![FunctionExample {
-                sql: "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5;"
-                    .into(),
-                description:
-                    "List the first few Snowball stemmer language ids (usable with \
-                              `tokenize`, `stem`, and the search analyzer), ordered alphabetically."
-                        .into(),
-                expected_output: None,
-            }],
+            examples: crate::meta::examples_from(EXAMPLE_QUERIES),
             tags: {
                 let mut tags = crate::meta::object_tags(
                     "Supported Stemmer Languages",
@@ -75,6 +80,7 @@ impl TableFunction for SupportedLanguages {
 ]"#
                     .into(),
                 ));
+                tags.push(crate::meta::example_queries_tag(EXAMPLE_QUERIES));
                 tags
             },
             ..Default::default()

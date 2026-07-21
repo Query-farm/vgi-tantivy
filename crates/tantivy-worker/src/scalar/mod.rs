@@ -8,18 +8,18 @@
 //!
 //! These are per-row **text analysis** primitives that need no corpus index
 //! (`tokenize`, `stem`), plus the ad-hoc single-document scorer (`bm25_score`,
-//! which builds a throwaway 1-doc index per row) and `tantivy_version`. Ranked
-//! corpus search lives in the `table` module (`bm25_search`).
+//! which builds a throwaway 1-doc index per row). Ranked corpus search lives in
+//! the `table` module (`bm25_search`). The tantivy engine version is published as
+//! catalog metadata (`implementation_version` and the `engine_version` tag), not
+//! as a query-consuming scalar (VGI328).
 
 mod analyze;
 mod score;
-mod version;
 
 use vgi::Worker;
 
 /// Register every scalar function on the worker.
 pub fn register(worker: &mut Worker) {
-    worker.register_scalar(version::TantivyVersion);
     worker.register_scalar(analyze::Tokenize);
     worker.register_scalar(analyze::TokenizeLang);
     worker.register_scalar(analyze::Stem);

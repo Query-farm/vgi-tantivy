@@ -19,8 +19,11 @@
 //! SELECT stem('running', 'english');              -- → 'run'
 //! SELECT bm25_score('the cat sat', 'cat');        -- ad-hoc single-doc score
 //! SELECT * FROM supported_languages();            -- stemmer languages
-//! SELECT tantivy_version();
 //! ```
+//!
+//! The underlying tantivy engine version is published as catalog metadata
+//! (`vgi_catalogs().implementation_version` and the `engine_version` tag), not as
+//! a query-consuming scalar.
 //!
 //! Pure search/analysis logic (no Arrow) lives in `search.rs`; the `scalar/` and
 //! `table/` modules are thin Arrow adapters over it. Every index is built in a RAM
@@ -36,8 +39,8 @@ mod table;
 use vgi::catalog::{CatSchema, CatalogModel};
 use vgi::Worker;
 
-/// Worker version string, surfaced by `tantivy_version()` alongside the tantivy
-/// engine version.
+/// Worker build version, published as the catalog `implementation_version` so an
+/// agent reads it from `vgi_catalogs()` without spending a query (VGI328).
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
@@ -115,7 +118,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  lexical (keyword/BM25), not semantic — there is no embedding model or vector \
                  store. Text analysis is language-aware through Snowball stemming, so word variants \
                  collapse to a shared root; the set of stemmer languages is discoverable at \
-                 runtime. List the schema to see the exact functions and their signatures.\n\n\
+                 runtime.\n\n\
                  ## Who it's for\n\n\
                  Reach for this worker whenever you want lightweight, embedded lexical search and \
                  relevance ranking inside an analytical SQL workflow — log triage, document \
@@ -125,6 +128,15 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  corpora are passed inline as constant JSON, so queries run with no external \
                  state."
                     .to_string(),
+            ),
+            // VGI328: the underlying tantivy engine version, published as catalog
+            // metadata (an agent reads it from `vgi_catalogs()` without spending a
+            // query, and it can't drift from the running build) instead of as a
+            // parameterless `tantivy_version()` scalar. e.g.
+            // `tantivy v0.24.2, index_format v7`.
+            (
+                "engine_version".to_string(),
+                crate::search::tantivy_version(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
             (
@@ -180,12 +192,6 @@ fn catalog_metadata(name: &str) -> CatalogModel {
     "name": "stem a single word",
     "prompt": "Using this worker's single-word stemming function, reduce the individual English word 'running' to its Snowball root. Return exactly one row holding a single scalar text value — the stemmed root word itself (a plain string, not a list or array).",
     "reference_sql": "SELECT tantivy.main.stem('running', 'english') AS root",
-    "ignore_column_names": true
-  },
-  {
-    "name": "report engine version",
-    "prompt": "Use this worker to determine whether the full-text search engine backing it is tantivy. Decide by checking whether the engine version string the worker reports starts with the text 'tantivy'. Answer with exactly one row holding a single BOOLEAN value: true if it starts with 'tantivy', false otherwise. Do not return the version string itself — return only the boolean.",
-    "reference_sql": "SELECT tantivy.main.tantivy_version() LIKE 'tantivy%' AS is_tantivy",
     "ignore_column_names": true
   }
 ]"#
@@ -255,20 +261,24 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      ### How it behaves\n\n\
                      Every function is deterministic given its inputs and needs no persisted \
                      state — indexes are built in a RAM directory per call and dropped when the \
-                     call returns. To see the exact functions and their signatures, list the \
-                     schema."
+                     call returns."
                         .to_string(),
                 ),
-                // VGI506 representative example queries for the schema.
+                // VGI506/VGI515 representative example queries for the schema, as a
+                // JSON list of {description, sql} so every example carries a
+                // human-readable description (the native newline-joined form drops
+                // descriptions). Each is projection/filter/aggregation, not a bare
+                // SELECT * (VGI514).
                 (
                     "vgi.example_queries".to_string(),
-                    "SELECT * FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat');\n\
-                     SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat');\n\
-                     SELECT tantivy.main.tokenize('Running quickly, CATS!');\n\
-                     SELECT tantivy.main.tokenize('Running quickly', 'english');\n\
-                     SELECT tantivy.main.stem('running', 'english');\n\
-                     SELECT * FROM tantivy.main.supported_languages();\n\
-                     SELECT tantivy.main.tantivy_version();"
+                    r#"[
+  {"description":"Rank a small JSON corpus by BM25 relevance to a query, best score first.","sql":"SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat') ORDER BY score DESC, doc_id"},
+  {"description":"Compute the ad-hoc BM25 score of a single document against a query.","sql":"SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"},
+  {"description":"Tokenize text into lowercased word tokens (no stemming).","sql":"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens"},
+  {"description":"Tokenize and Snowball-stem text for a language.","sql":"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"},
+  {"description":"Snowball-stem a single word to its root for a language.","sql":"SELECT tantivy.main.stem('running', 'english') AS root"},
+  {"description":"List the first few supported Snowball stemmer languages, alphabetically.","sql":"SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5"}
+]"#
                         .to_string(),
                 ),
             ],
@@ -279,6 +289,9 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             // (no parentheses) — VGI311.
             tables: vec![table::supported_languages_table()],
         }],
+        // VGI328: publish the worker build version as catalog metadata, readable
+        // from `vgi_catalogs().implementation_version` without spending a query.
+        implementation_version: Some(version().to_string()),
         ..Default::default()
     }
 }

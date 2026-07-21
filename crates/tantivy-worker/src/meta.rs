@@ -20,6 +20,40 @@ pub fn keywords_json(keywords: &[&str]) -> String {
     serde_json::to_string(keywords).expect("serializing &str slice to JSON never fails")
 }
 
+/// Build native `FunctionExample`s from the same `(description, sql)` pairs used
+/// for the `vgi.example_queries` tag. Sharing one pair list keeps the native
+/// carrier and the tag byte-identical: the linter dedupes examples by SQL and
+/// takes the (preserved) description from the tag, so the description-dropping
+/// `duckdb_functions().examples` copy is not double-counted (VGI515).
+pub fn examples_from(pairs: &[(&str, &str)]) -> Vec<vgi::FunctionExample> {
+    pairs
+        .iter()
+        .map(|(desc, sql)| vgi::FunctionExample {
+            sql: (*sql).to_string(),
+            description: (*desc).to_string(),
+            expected_output: None,
+        })
+        .collect()
+}
+
+/// Build a `vgi.example_queries` tag from `(description, sql)` pairs as the
+/// described-example JSON list `[{"description":…,"sql":…}]` the linter requires
+/// (VGI515/VGI503). The native `FunctionExample` carrier surfaced via
+/// `duckdb_functions().examples` drops the per-example description, so every
+/// function also publishes its examples through this tag, which preserves them.
+/// For arity-overloaded functions (e.g. `tokenize`) both overloads must publish
+/// the SAME aggregated pair list so the merged catalog view is consistent.
+pub fn example_queries_tag(examples: &[(&str, &str)]) -> (String, String) {
+    let list: Vec<serde_json::Value> = examples
+        .iter()
+        .map(|(desc, sql)| serde_json::json!({"description": desc, "sql": sql}))
+        .collect();
+    (
+        "vgi.example_queries".to_string(),
+        serde_json::to_string(&list).expect("serializing example list to JSON never fails"),
+    )
+}
+
 /// Build the five standard per-object discovery/description tags.
 ///
 /// `keywords` is a slice of search terms/synonyms, serialized to a JSON array of

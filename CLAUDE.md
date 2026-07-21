@@ -37,7 +37,8 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
   the Snowball `Stemmer` for `tokenize`/`stem` and the search analyzer;
 - an **in-RAM** index (`Index::create_in_ram`) + `QueryParser` + `TopDocs`
   collector for BM25 ranking;
-- `tantivy::version_string()` for `tantivy_version()`.
+- `tantivy::version_string()` for the catalog `engine_version` tag (published as
+  catalog metadata, not a scalar — see `search::tantivy_version()`).
 
 ## Sharp edges (learned the hard way)
 
@@ -52,7 +53,9 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
    These keep the whole graph ≤ 1.86. If you bump `tantivy`, re-check these.
 
 2. **`version_string()` returns `&str` in tantivy 0.24** — not `String`. The pure
-   `tantivy_version()` does `.to_string()`.
+   `search::tantivy_version()` does `.to_string()`; its value is published as the
+   catalog `engine_version` tag (there is no `tantivy_version()` scalar — a
+   parameterless version function is VGI328).
 
 3. **Ephemeral RAM index per call.** Every `bm25_search` / `bm25_score` call
    builds a fresh `Index::create_in_ram`, registers the per-language analyzer
@@ -108,7 +111,8 @@ CI (`.github/workflows/ci.yml`) runs fmt/clippy/build/test plus a gated
 
 ## Function surface
 
-Scalars: `tokenize` (1- and 2-arg), `stem`, `bm25_score`, `tantivy_version`.
+Scalars: `tokenize` (1- and 2-arg), `stem`, `bm25_score`. (The tantivy engine
+version is catalog metadata — the `engine_version` tag — not a scalar.)
 Tables: `bm25_search`, `supported_languages`. Garbage / empty / oversized input →
 graceful empty / NULL / no rows; an unknown language, malformed `docs_json`, or
 unparseable query is a clear error.

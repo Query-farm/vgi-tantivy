@@ -40,7 +40,10 @@ SELECT bm25_score('the stock market crashed', 'cat');-- 0.0 (no match)
 
 -- Discovery.
 SELECT * FROM supported_languages();          -- stemmer language ids
-SELECT tantivy_version();                      -- 'tantivy v0.24.2, index_format v7'
+
+-- Version info is published as catalog metadata (no query slot spent):
+--   worker build version -> SELECT implementation_version FROM vgi_catalogs() WHERE catalog_name = 'tantivy';
+--   tantivy engine version -> SELECT tags['engine_version'] FROM duckdb_databases() WHERE database_name = 'tantivy';
 ```
 
 ## Functions
@@ -53,7 +56,11 @@ SELECT tantivy_version();                      -- 'tantivy v0.24.2, index_format
 | `tokenize(text, lang)` | `VARCHAR[]` | Tokenize + Snowball-stem for `lang`. |
 | `stem(word, lang)` | `VARCHAR` | Snowball-stem a single word (`running` → `run`). |
 | `bm25_score(doc_text, query)` | `DOUBLE` | Ad-hoc BM25 score of one document vs. a query (1-doc index; `0.0` if no match). English stemmer. |
-| `tantivy_version()` | `VARCHAR` | tantivy engine + index-format version string. |
+
+Version info is published as catalog metadata rather than as a scalar: the worker
+build version is `vgi_catalogs().implementation_version`, and the underlying
+tantivy engine version is the catalog's `engine_version` tag
+(`duckdb_databases().tags`) — both readable without spending a query.
 
 ### Table (constant arguments, passed positionally)
 

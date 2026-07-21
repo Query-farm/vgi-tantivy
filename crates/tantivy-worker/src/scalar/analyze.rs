@@ -9,10 +9,7 @@
 use std::sync::Arc;
 
 use arrow_array::builder::StringBuilder;
-use vgi::{
-    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
-    ScalarFunction,
-};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::{
@@ -30,14 +27,15 @@ fn ve(e: impl std::fmt::Display) -> RpcError {
 // whichever the merged view surfaces is consistent (VGI180).
 const TOKENIZE_TITLE: &str = "Tokenize Text";
 const TOKENIZE_DOC_LLM: &str =
-    "Split text into normalized word tokens, returned as a VARCHAR array. \
+    "Split text into normalized word tokens, returned as a `VARCHAR` array. \
      Two forms: `tokenize(text)` applies the default analyzer only — unicode word segmentation, \
      lowercasing, and dropping of overly long tokens, with NO stemming (e.g. 'Running quickly, \
      CATS!' → ['running','quickly','cats']); `tokenize(text, lang)` does the same and additionally \
      Snowball-stems each token for the given language, collapsing word variants to a shared root \
      (e.g. 'Running quickly' with 'english' → ['run','quickli']). NULL text (or NULL language in \
      the 2-arg form) → NULL; an unknown language is a clear error.";
-const TOKENIZE_DOC_MD: &str = "Tokenize text into a VARCHAR array of normalized terms. The 1-arg \
+const TOKENIZE_DOC_MD: &str =
+    "Tokenize text into a `VARCHAR` array of normalized terms. The 1-arg \
      form `tokenize(text)` only tokenizes and lowercases (no stemmer), e.g. \
      `tokenize('Running quickly, CATS!')` → `['running','quickly','cats']`. The 2-arg form \
      `tokenize(text, lang)` additionally Snowball-stems each token, e.g. \
@@ -54,6 +52,20 @@ const TOKENIZE_EXECUTABLE_EXAMPLES: &str = r#"[
     "sql": "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"
   }
 ]"#;
+// Illustrative `vgi.example_queries` (VGI515/VGI306) for the `tokenize` object.
+// Both arity overloads publish the SAME aggregated pair list (by function name)
+// so the merged catalog view is consistent, and the native `FunctionExample`
+// carrier drops descriptions where this tag preserves them.
+const TOKENIZE_EXAMPLE_QUERIES: &[(&str, &str)] = &[
+    (
+        "Tokenize text into lowercased word tokens (1-arg form, no stemming).",
+        "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens",
+    ),
+    (
+        "Tokenize and Snowball-stem text for a language (2-arg form).",
+        "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens",
+    ),
+];
 const TOKENIZE_KEYWORDS: &[&str] = &[
     "tokenize",
     "tokenization",
@@ -83,22 +95,7 @@ impl ScalarFunction for Tokenize {
                 "Tokenize text into VARCHAR[]; 1-arg form only splits+lowercases (no stemming)"
                     .into(),
             return_type: Some(list_varchar_type()),
-            examples: vec![
-                FunctionExample {
-                    sql: "SELECT tantivy.main.tokenize('Running quickly, CATS!');".into(),
-                    description: "1-arg form: split+lowercase only, no stemming \
-                                  (['running','quickly','cats'])."
-                        .into(),
-                    expected_output: None,
-                },
-                FunctionExample {
-                    sql: "SELECT tantivy.main.tokenize('Running quickly', 'english');".into(),
-                    description: "2-arg form: additionally Snowball-stem each token \
-                                  (['run','quickli'])."
-                        .into(),
-                    expected_output: None,
-                },
-            ],
+            examples: crate::meta::examples_from(TOKENIZE_EXAMPLE_QUERIES),
             tags: {
                 let mut tags = crate::meta::object_tags(
                     TOKENIZE_TITLE,
@@ -111,6 +108,7 @@ impl ScalarFunction for Tokenize {
                     "vgi.executable_examples".into(),
                     TOKENIZE_EXECUTABLE_EXAMPLES.into(),
                 ));
+                tags.push(crate::meta::example_queries_tag(TOKENIZE_EXAMPLE_QUERIES));
                 tags
             },
             ..Default::default()
@@ -167,22 +165,7 @@ impl ScalarFunction for TokenizeLang {
                 "Tokenize text into VARCHAR[]; 2-arg form additionally Snowball-stems each token"
                     .into(),
             return_type: Some(list_varchar_type()),
-            examples: vec![
-                FunctionExample {
-                    sql: "SELECT tantivy.main.tokenize('Running quickly', 'english');".into(),
-                    description: "2-arg form: additionally Snowball-stem each token \
-                                  (['run','quickli'])."
-                        .into(),
-                    expected_output: None,
-                },
-                FunctionExample {
-                    sql: "SELECT tantivy.main.tokenize('Running quickly, CATS!');".into(),
-                    description: "1-arg form: split+lowercase only, no stemming \
-                                  (['running','quickly','cats'])."
-                        .into(),
-                    expected_output: None,
-                },
-            ],
+            examples: crate::meta::examples_from(TOKENIZE_EXAMPLE_QUERIES),
             tags: {
                 let mut tags = crate::meta::object_tags(
                     TOKENIZE_TITLE,
@@ -195,6 +178,7 @@ impl ScalarFunction for TokenizeLang {
                     "vgi.executable_examples".into(),
                     TOKENIZE_EXECUTABLE_EXAMPLES.into(),
                 ));
+                tags.push(crate::meta::example_queries_tag(TOKENIZE_EXAMPLE_QUERIES));
                 tags
             },
             ..Default::default()
@@ -243,6 +227,13 @@ impl ScalarFunction for TokenizeLang {
     }
 }
 
+/// Shared `(description, sql)` example for `stem`, used byte-identically for the
+/// native `FunctionExample` carrier and the `vgi.example_queries` tag (VGI515).
+const STEM_EXAMPLE_QUERIES: &[(&str, &str)] = &[(
+    "Snowball-stem a single English word to its root.",
+    "SELECT tantivy.main.stem('running', 'english') AS root",
+)];
+
 /// `stem(word, lang) -> VARCHAR` — Snowball-stem a single word.
 pub struct Stem;
 
@@ -256,12 +247,7 @@ impl ScalarFunction for Stem {
             description: "Snowball-stem a single word for the given language (e.g. running → run)"
                 .into(),
             return_type: Some(arrow_schema::DataType::Utf8),
-            examples: vec![FunctionExample {
-                sql: "SELECT tantivy.main.stem('running', 'english');".into(),
-                description: "Snowball-stem a word to its root for a language ('running' → 'run')."
-                    .into(),
-                expected_output: None,
-            }],
+            examples: crate::meta::examples_from(STEM_EXAMPLE_QUERIES),
             tags: {
                 let mut tags = crate::meta::object_tags(
                     "Stem Single Word",
@@ -293,6 +279,7 @@ impl ScalarFunction for Stem {
 ]"#
                     .into(),
                 ));
+                tags.push(crate::meta::example_queries_tag(STEM_EXAMPLE_QUERIES));
                 tags
             },
             ..Default::default()

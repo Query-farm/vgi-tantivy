@@ -2,8 +2,9 @@
 # group: [vgi_tantivy]
 #
 # Per-row text-analysis scalars over text supplied as SQL string literals:
-# tokenize (default + language variants, via UNNEST), stem, bm25_score, and
-# tantivy_version. These need no corpus index.
+# tokenize (default + language variants, via UNNEST), stem, and bm25_score.
+# These need no corpus index. The tantivy engine version is published as catalog
+# metadata (implementation_version / engine_version tag), not as a scalar.
 
 require-env VGI_TANTIVY_WORKER
 
@@ -53,9 +54,9 @@ SELECT bm25_score('the stock market crashed', 'cat') = 0.0;
 ----
 true
 
-# tantivy_version mentions the engine.
+# The tantivy engine version is published as a catalog tag (not a scalar).
 query I
-SELECT tantivy_version() LIKE '%tantivy%';
+SELECT tags['engine_version'] LIKE '%tantivy%' FROM duckdb_databases() WHERE database_name = 'tantivy';
 ----
 true
 

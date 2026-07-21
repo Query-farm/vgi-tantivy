@@ -33,7 +33,7 @@ use arrow_array::builder::{Float64Builder, Int64Builder};
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::{DataType, Field, Schema, SchemaRef};
 use vgi::table_function::{TableFunction, TableProducer};
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams};
+use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams};
 use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::search::{self, Hit};
@@ -77,12 +77,21 @@ const EXECUTABLE_EXAMPLES: &str = r#"[
   {
     "description": "List the supported Snowball stemmer languages.",
     "sql": "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5"
-  },
-  {
-    "description": "Report the tantivy engine and index-format version.",
-    "sql": "SELECT tantivy.main.tantivy_version() AS version"
   }
 ]"#;
+
+/// Shared `(description, sql)` examples, used byte-identically for the native
+/// `FunctionExample` carrier and the `vgi.example_queries` tag (VGI515).
+const EXAMPLE_QUERIES: &[(&str, &str)] = &[
+    (
+        "Rank a small JSON corpus by BM25 relevance to a query, best score first.",
+        "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"a cat and a dog\"]', 'cat') ORDER BY score DESC, doc_id",
+    ),
+    (
+        "Rank a corpus carrying explicit {id,text} document ids.",
+        "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"}]', 'cat')",
+    ),
+];
 
 /// Upper bound on the number of ranked hits returned.
 const RESULT_LIMIT: usize = 10_000;
@@ -110,14 +119,7 @@ impl TableFunction for Bm25Search {
             description:
                 "BM25 full-text ranking of a JSON document corpus against a query, as (doc_id, score) rows"
                     .into(),
-            examples: vec![FunctionExample {
-                sql: "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat') ORDER BY score DESC, doc_id;"
-                    .into(),
-                description: "Rank a JSON corpus of documents by BM25 relevance to a query, \
-                              projecting (doc_id, score) ordered best-first."
-                    .into(),
-                expected_output: None,
-            }],
+            examples: crate::meta::examples_from(EXAMPLE_QUERIES),
             tags: {
                 let mut tags = crate::meta::object_tags(
                     "BM25 Corpus Search & Ranking",
@@ -154,6 +156,7 @@ impl TableFunction for Bm25Search {
                     .into(),
                 ));
                 tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
+                tags.push(crate::meta::example_queries_tag(EXAMPLE_QUERIES));
                 tags
             },
             ..Default::default()
