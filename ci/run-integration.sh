@@ -105,7 +105,17 @@ case "$TRANSPORT" in
     # VGI_TANTIVY_WORKER (e.g. a bare command) if the caller set one.
     export VGI_TANTIVY_WORKER="${VGI_TANTIVY_WORKER:-$WORKER_BIN}"
     ;;
-  http)  start_server_and_set_location http ;;
+  http)
+    # Honor a pre-launched HTTP worker (e.g. a running container in the docker
+    # image_test): if VGI_TANTIVY_WORKER already points at an http(s) URL, use
+    # it and skip spawning a local binary. The awk preprocessor still injects
+    # httpfs because TRANSPORT=http.
+    if [[ "${VGI_TANTIVY_WORKER:-}" =~ ^https?:// ]]; then
+      echo "Using pre-launched HTTP worker at $VGI_TANTIVY_WORKER"
+    else
+      start_server_and_set_location http
+    fi
+    ;;
   unix)  start_server_and_set_location unix ;;
   *) echo "ERROR: unknown TRANSPORT '$TRANSPORT' (want subprocess|http|unix)" >&2; exit 1 ;;
 esac
@@ -148,10 +158,11 @@ rm -f "$STAGE/test/_warm.test"
 # so a broken http leg can report "All tests were skipped" with exit 0 and look
 # green. Tee the report and fail if NOTHING actually ran. (For subprocess/unix
 # there is no skip path, so this only ever bites a genuinely broken http leg.)
-echo "Running suite (transport: $TRANSPORT, worker: $VGI_TANTIVY_WORKER) ..."
+TEST_PATTERN="${TEST_PATTERN:-test/sql/*}"
+echo "Running suite (transport: $TRANSPORT, worker: $VGI_TANTIVY_WORKER, pattern: $TEST_PATTERN) ..."
 REPORT="$STAGE/.report.txt"
 set +e
-"$HAYBARN_UNITTEST" "test/sql/*" 2>&1 | tee "$REPORT"
+"$HAYBARN_UNITTEST" "$TEST_PATTERN" 2>&1 | tee "$REPORT"
 status="${PIPESTATUS[0]}"
 set -e
 if grep -qiE "All tests were skipped|total skipped [1-9]" "$REPORT"; then
