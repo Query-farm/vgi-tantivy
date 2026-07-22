@@ -8,17 +8,32 @@ authors.workspace = true
 repository.workspace = true
 description = "VGI worker bringing tantivy full-text search (BM25 ranking) plus tokenization and Snowball stemming to DuckDB over Apache Arrow"
 
+[lib]
+name = "tantivy_worker"
+path = "src/lib.rs"
+
 [[bin]]
 name = "tantivy-worker"
 path = "src/main.rs"
 
 [dependencies]
-vgi.workspace = true
-vgi-rpc.workspace = true
 arrow-array.workspace = true
 arrow-buffer.workspace = true
 arrow-schema.workspace = true
 tantivy.workspace = true
 serde_json.workspace = true
 log = "0.4"
+
+# --- Native ---------------------------------------------------------------
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# The SDK's real default features — unchanged from before the wasm split.
+vgi = { workspace = true, features = ["sqlite", "transport-http"] }
+vgi-rpc = { workspace = true, features = ["http"] }
 env_logger = "0.11"
+
+# --- wasm32 ---------------------------------------------------------------
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# No sqlite (C) and no HTTP transport (tokio/mio/axum); the bincode stream codec
+# is what the SAB byte-channel transport needs.
+vgi = { workspace = true }
+vgi-rpc = { workspace = true, features = ["stream-codec"] }
