@@ -324,7 +324,7 @@ pub fn bm25_search(docs: &[Document], query: &str, lang: &str, limit: usize) -> 
         .map_err(|e| SearchError::BadQuery(e.to_string()))?;
 
     let top = searcher
-        .search(&parsed, &TopDocs::with_limit(limit.max(1)))
+        .search(&parsed, &TopDocs::with_limit(limit.max(1)).order_by_score())
         .map_err(|e| SearchError::Internal(e.to_string()))?;
 
     let mut hits = Vec::with_capacity(top.len());
@@ -367,7 +367,7 @@ pub fn bm25_score(doc_text: &str, query: &str, lang: &str) -> Result<f64> {
     Ok(hits.first().map(|h| h.score).unwrap_or(0.0))
 }
 
-/// The tantivy version string, e.g. `"tantivy v0.24.2, index_format v7"`.
+/// The tantivy version string, e.g. `"tantivy v0.27.0, index_format v7"`.
 pub fn tantivy_version() -> String {
     tantivy::version_string().to_string()
 }

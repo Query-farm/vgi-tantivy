@@ -14,7 +14,7 @@ over Arrow IPC. Built on the `vgi` crate (crates.io), modeled on `vgi-code` /
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.9.0", tantivy = "=0.24.2"
+Cargo.toml                          workspace; pins vgi = "0.46", tantivy = "0.27"
 crates/tantivy-worker/
   src/main.rs                       Worker::new(); registers scalars + tables
   src/search.rs                     PURE logic (no Arrow): language registry, tokenize/stem,
@@ -32,7 +32,7 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
 
 ## Library: tantivy
 
-`tantivy = "=0.24.2"` is the full-text search engine. We use:
+`tantivy = "0.27"` is the full-text search engine. We use:
 - its tokenizer stack (`SimpleTokenizer` + `LowerCaser` + `RemoveLongFilter`) and
   the Snowball `Stemmer` for `tokenize`/`stem` and the search analyzer;
 - an **in-RAM** index (`Index::create_in_ram`) + `QueryParser` + `TopDocs`
@@ -42,17 +42,13 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
 
 ## Sharp edges (learned the hard way)
 
-1. **MSRV pinning (the fiddly one).** Workspace `rust-version = 1.86`. `tantivy`
-   `0.25`/`0.26` bump the toolchain past 1.86, so we pin `tantivy = "=0.24.2"`
-   (builds cleanly on 1.86). Its transitive chain still tries to resolve newer
-   crates that require Rust ≥ 1.87/1.88, so `Cargo.lock` is pinned back with
-   `cargo update -p <c> --precise <v>`:
-   - `time` → `0.3.41` (pulls `time-core` 0.1.4, `time-macros` 0.2.22)
-   - `darling` → `0.20.11`
-   - `wasip2` → `1.0.0+wasi-0.2.4`
-   These keep the whole graph ≤ 1.86. If you bump `tantivy`, re-check these.
+1. **MSRV.** Workspace `rust-version = 1.97` (required by vgi 0.46). The old
+   `tantivy = "=0.24.2"` pin and the `Cargo.lock` back-pins (`time`, `darling`,
+   `wasip2`) that held the graph at 1.86 are gone; tantivy 0.27 declares 1.88.
+   Since tantivy 0.26, `TopDocs::with_limit(n)` is not itself a `Collector` —
+   finish it with `.order_by_score()`.
 
-2. **`version_string()` returns `&str` in tantivy 0.24** — not `String`. The pure
+2. **`version_string()` returns `&str` in tantivy 0.24+** — not `String`. The pure
    `search::tantivy_version()` does `.to_string()`; its value is published as the
    catalog `engine_version` tag (there is no `tantivy_version()` scalar — a
    parameterless version function is VGI328).

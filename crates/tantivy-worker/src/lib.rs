@@ -157,47 +157,41 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "vgi.support_policy_url".to_string(),
                 "https://github.com/Query-farm/vgi-tantivy/blob/main/README.md".to_string(),
             ),
-            // VGI152: analyst task suite for `vgi-lint simulate`. Each task is
-            // self-contained and deterministic — corpora are passed inline as
+            // VGI152: analyst task suite for `vgi-lint simulate`. Only the public
+            // name/prompt ride this tag (VGI416); the graders live in
+            // vgi-agent-tests.yaml at the repo root, keyed by task name. Each task
+            // is self-contained and deterministic — corpora are passed inline as
             // constant JSON, so no external table or attached data is required.
             (
                 "vgi.agent_test_tasks".to_string(),
                 r#"[
   {
     "name": "rank corpus by relevance",
-    "prompt": "Given exactly these three documents, in this order — 'the cat sat', 'dogs bark', and 'a cat and a dog' — rank them by BM25 relevance to the query 'cat'. Return every matching row as (doc_id, score), best score first, exactly as the worker produces them.",
-    "reference_sql": "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"a cat and a dog\"]', 'cat') ORDER BY score DESC, doc_id"
+    "prompt": "Given exactly these three documents, in this order — 'the cat sat', 'dogs bark', and 'a cat and a dog' — rank them by BM25 relevance to the query 'cat'. Return every matching row as (doc_id, score), best score first, exactly as the worker produces them."
   },
   {
     "name": "rank corpus with explicit ids",
-    "prompt": "Rank this corpus, whose documents carry explicit ids, by BM25 relevance to the query 'cat': the document with id 10 is 'the cat sat', id 20 is 'stock crash', and id 30 is 'the cat and the dog'. Return the matching rows as (doc_id, score).",
-    "reference_sql": "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"},{\"id\":30,\"text\":\"the cat and the dog\"}]', 'cat') ORDER BY score DESC, doc_id"
+    "prompt": "Rank this corpus, whose documents carry explicit ids, by BM25 relevance to the query 'cat': the document with id 10 is 'the cat sat', id 20 is 'stock crash', and id 30 is 'the cat and the dog'. Return the matching rows as (doc_id, score)."
   },
   {
     "name": "score one document",
-    "prompt": "Run the worker to compute the ad-hoc BM25 relevance score of the single document 'the cat sat on the mat' against the query 'cat'. Execute the function against these exact inputs and return the numeric score it outputs — do not estimate it or reuse a value from documentation.",
-    "reference_sql": "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"
+    "prompt": "Run the worker to compute the ad-hoc BM25 relevance score of the single document 'the cat sat on the mat' against the query 'cat'. Execute the function against these exact inputs and return the numeric score it outputs — do not estimate it or reuse a value from documentation."
   },
   {
     "name": "tokenize without stemming",
-    "prompt": "Use this worker to split the text 'Running quickly, CATS!' into lowercased word tokens WITHOUT any stemming (the plain 1-argument tokenizer). Run the function and return the resulting array of tokens exactly as produced.",
-    "reference_sql": "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens"
+    "prompt": "Use this worker to split the text 'Running quickly, CATS!' into lowercased word tokens WITHOUT any stemming (the plain 1-argument tokenizer). Run the function and return the resulting array of tokens exactly as produced."
   },
   {
     "name": "tokenize with english stemming",
-    "prompt": "Use this worker to tokenize the text 'Running quickly' and additionally apply the English Snowball stemmer to each token (the 2-argument tokenizer). Return the resulting array of tokens exactly as produced.",
-    "reference_sql": "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"
+    "prompt": "Use this worker to tokenize the text 'Running quickly' and additionally apply the English Snowball stemmer to each token (the 2-argument tokenizer). Return the resulting array of tokens exactly as produced."
   },
   {
     "name": "list supported languages",
-    "prompt": "List every Snowball stemmer language this worker supports, ordered alphabetically. Return the full list of language ids.",
-    "reference_sql": "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang"
+    "prompt": "List every Snowball stemmer language this worker supports, ordered alphabetically. Return the full list of language ids."
   },
   {
     "name": "stem a single word",
-    "prompt": "Using this worker's single-word stemming function, reduce the individual English word 'running' to its Snowball root. Return exactly one row holding a single scalar text value — the stemmed root word itself (a plain string, not a list or array).",
-    "reference_sql": "SELECT tantivy.main.stem('running', 'english') AS root",
-    "ignore_column_names": true
+    "prompt": "Using this worker's single-word stemming function, reduce the individual English word 'running' to its Snowball root. Return exactly one row holding a single scalar text value — the stemmed root word itself (a plain string, not a list or array)."
   }
 ]"#
                 .to_string(),
@@ -206,6 +200,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         source_url: Some("https://github.com/Query-farm/vgi-tantivy".to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
+            path: Vec::new(),
             comment: Some(
                 "Full-text search, relevance scoring, and text-analysis functions.".to_string(),
             ),

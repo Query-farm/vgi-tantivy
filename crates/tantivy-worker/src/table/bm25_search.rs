@@ -232,4 +232,8 @@ impl TableProducer for Bm25Producer {
                 .map_err(|e| RpcError::runtime_error(e.to_string()))?,
         ))
     }
+    fn resume_supported(&self) -> bool {
+        // Single batch: every hit is emitted on the first call, so there is no cursor to resume.
+        false
+    }
 }

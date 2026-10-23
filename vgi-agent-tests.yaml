@@ -1,0 +1,25 @@
+# Private graders for the agent-suitability suite (`vgi-lint simulate`).
+#
+# The prompts are published in the catalog's vgi.agent_test_tasks tag
+# (crates/tantivy-worker/src/lib.rs); the answers live here, keyed by task name,
+# so the agent being graded never sees them. vgi-lint discovers this file in
+# the directory it runs from.
+# Each task is self-contained and deterministic: corpora are passed inline as
+# constant JSON, so no external table or attached data is required.
+
+tasks:
+  - name: "rank corpus by relevance"
+    reference_sql: "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"a cat and a dog\"]', 'cat') ORDER BY score DESC, doc_id"
+  - name: "rank corpus with explicit ids"
+    reference_sql: "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"},{\"id\":30,\"text\":\"the cat and the dog\"}]', 'cat') ORDER BY score DESC, doc_id"
+  - name: "score one document"
+    reference_sql: "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"
+  - name: "tokenize without stemming"
+    reference_sql: "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens"
+  - name: "tokenize with english stemming"
+    reference_sql: "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"
+  - name: "list supported languages"
+    reference_sql: "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang"
+  - name: "stem a single word"
+    reference_sql: "SELECT tantivy.main.stem('running', 'english') AS root"
+    ignore_column_names: true

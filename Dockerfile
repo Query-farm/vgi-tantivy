@@ -15,7 +15,7 @@
 # ---- build stage -----------------------------------------------------------
 # Pinned glibc (bookworm) so the binary links against the same libc the slim
 # runtime ships. rust:1-bookworm tracks the latest stable 1.x toolchain, which
-# satisfies the workspace `rust-version = 1.90`.
+# satisfies the workspace `rust-version = 1.97`.
 FROM rust:1-bookworm AS build
 WORKDIR /src
 
