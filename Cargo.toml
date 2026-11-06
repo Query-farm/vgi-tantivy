@@ -17,7 +17,7 @@ repository = "https://github.com/Query-farm/vgi-tantivy"
 
 [workspace.dependencies]
 # VGI Rust SDK (worker side), published on crates.io. Provides the wasm
-# `vgi::wasm_worker!` macro used by tantivy-wasm (since 0.24); 0.46 requires rustc 1.97 (see
+# `vgi::wasm_worker!` macro used by tantivy-wasm (since 0.24); 0.49.2 requires rustc 1.97 (see
 # rust-version above). Base (feature-less) so each target can opt in: the native
 # build takes the SDK's real defaults (`sqlite` + `transport-http`), while the
 # wasm build must NOT — tokio/mio/axum and bundled SQLite do not compile for
@@ -25,11 +25,11 @@ repository = "https://github.com/Query-farm/vgi-tantivy"
 # Features are additive, and the two are behind mutually-exclusive target cfgs.
 # Keep the arrow entries below in lockstep with what `vgi` requires so a single
 # arrow resolves.
-vgi = { version = "0.46", default-features = false }
-vgi-rpc = { version = "0.32", default-features = false, features = ["macros"] }
-arrow-array = "60"
-arrow-buffer = "60"
-arrow-schema = "60"
+vgi = { version = "0.49.2", default-features = false }
+vgi-rpc = { version = "0.32.3", default-features = false, features = ["macros"] }
+arrow-array = "59.2"
+arrow-buffer = "59.2"
+arrow-schema = "59.2"
 
 # tantivy — the Rust full-text search engine (MIT). 0.27 declares rust-version
 # 1.88, under the workspace rust-version (1.97). We use only the in-process

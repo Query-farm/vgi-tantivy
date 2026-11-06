@@ -12,6 +12,7 @@ mod supported_languages;
 use std::sync::Arc;
 
 use vgi::catalog::CatTable;
+use vgi::constraints::{constraint_record, ConstraintKind, ConstraintRecord};
 use vgi::Worker;
 
 /// Register every table function on the worker.
@@ -37,11 +38,24 @@ pub fn supported_languages_table() -> CatTable {
         ),
         Some(crate::search::SUPPORTED_LANGUAGES.len() as i64),
     );
-    // `lang` (column 0) is the unique row identity — declare it the primary key
-    // (VGI807) plus the table's NOT NULL/unique constraints (VGI806).
-    t.primary_key = vec![vec![0]];
-    t.not_null = vec![0];
-    t.unique = vec![vec![0]];
+    // `lang` is the unique row identity — declare it the primary key (VGI807)
+    // plus the table's NOT NULL/unique constraints (VGI806), as canonical
+    // constraint records (the served nullability is derived from them).
+    t.constraints = [
+        ("supported_languages.pk", ConstraintKind::PrimaryKey),
+        ("supported_languages.lang.not_null", ConstraintKind::NotNull),
+        ("supported_languages.lang.unique", ConstraintKind::Unique),
+    ]
+    .into_iter()
+    .map(|(id, kind)| {
+        constraint_record(
+            &ConstraintRecord::new(&["main"], "supported_languages", id, kind)
+                .with_columns(&[&["lang"]])
+                .enforced(),
+        )
+        .expect("valid constraint record")
+    })
+    .collect();
     // Carry the same discovery tags + example queries as a well-documented
     // catalog object so the table lints clean on its own (VGI112/113/123/124/126/501).
     t.tags = vec![
