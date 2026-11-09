@@ -2380,7 +2380,7 @@ dependencies = [
 
 [[package]]
 name = "tantivy-wasm"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "tantivy-worker",
  "vgi",
@@ -2388,7 +2388,7 @@ dependencies = [
 
 [[package]]
 name = "tantivy-worker"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
