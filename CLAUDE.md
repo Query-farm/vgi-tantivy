@@ -14,7 +14,7 @@ over Arrow IPC. Built on the `vgi` crate (crates.io), modeled on `vgi-code` /
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.49.2", tantivy = "0.27"
+Cargo.toml                          workspace; pins vgi = "0.50.0", tantivy = "0.27"
 crates/tantivy-worker/
   src/main.rs                       Worker::new(); registers scalars + tables
   src/search.rs                     PURE logic (no Arrow): language registry, tokenize/stem,
@@ -42,7 +42,7 @@ marshalling in `arrow_io.rs` + `scalar/*.rs` + `table/*.rs` (thin, harness-teste
 
 ## Sharp edges (learned the hard way)
 
-1. **MSRV.** Workspace `rust-version = 1.97` (required by vgi 0.49.2). The old
+1. **MSRV.** Workspace `rust-version = 1.97` (required by vgi 0.50.0). The old
    `tantivy = "=0.24.2"` pin and the `Cargo.lock` back-pins (`time`, `darling`,
    `wasip2`) that held the graph at 1.86 are gone; tantivy 0.27 declares 1.88.
    Since tantivy 0.26, `TopDocs::with_limit(n)` is not itself a `Collector` —
