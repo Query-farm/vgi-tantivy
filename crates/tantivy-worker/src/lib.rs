@@ -67,6 +67,12 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "vgi.title".to_string(),
                 "Full-Text Search & Text Analysis".to_string(),
             ),
+            // VGI148: one-sentence listing subtitle shown under the title.
+            (
+                "vgi.subtitle".to_string(),
+                "Rank documents by BM25 relevance, tokenize text, and stem words with Snowball stemmers for many languages."
+                    .to_string(),
+            ),
             (
                 "vgi.keywords".to_string(),
                 meta::keywords_json(&[
@@ -205,7 +211,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 "Full-text search, relevance scoring, and text-analysis functions.".to_string(),
             ),
             tags: vec![
-                ("vgi.title".to_string(), "Tantivy — main".to_string()),
+                ("vgi.title".to_string(), "Full-Text Search".to_string()),
                 (
                     "vgi.keywords".to_string(),
                     meta::keywords_json(&[
