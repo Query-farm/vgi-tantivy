@@ -21,7 +21,7 @@ corpus is entirely caller-supplied (see [Ephemeral index](#ephemeral-index)).
 
 ```sql
 LOAD vgi;
-ATTACH 'tantivy' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tantivy@v0.3.0');
+ATTACH 'tantivy' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tantivy@v0.4.0');
 SET search_path = 'tantivy.main';
 
 -- Rank a JSON document corpus by BM25 relevance (table function).
@@ -54,7 +54,7 @@ Every [GitHub release](https://github.com/Query-farm/vgi-tantivy/releases) ships
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tantivy@v0.3.0');
+ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-tantivy@v0.4.0');
 
 -- Rank a small JSON corpus by BM25 relevance to a query, best score first.
 SELECT doc_id, score FROM tantivy.main.bm25_search('["the cat sat","dogs bark","stock crash"]', 'cat') ORDER BY score DESC, doc_id;
@@ -63,14 +63,14 @@ SELECT doc_id, score FROM tantivy.main.bm25_search('["the cat sat","dogs bark","
 SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score;
 ```
 
-Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.3.0` to move to a newer release.
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.4.0` to move to a newer release.
 
 ### Other ways to run it
 
 - **Docker** (the image bundles the worker; needs a container runtime):
 
   ```sql
-  ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-tantivy:0.3.0');
+  ATTACH 'tantivy' AS tantivy (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-tantivy:0.4.0');
   ```
 
 - **Manual download.** Download the archive for your platform from the [releases page](https://github.com/Query-farm/vgi-tantivy/releases), verify it against its `.sha256` file (a cosign `.cosign.bundle` is published alongside), unpack it, and set `LOCATION` to the path of the extracted worker executable.
