@@ -1,4 +1,7 @@
 .venv/
+.vgi-examples/
 __pycache__/
 .ipynb_checkpoints/
+artifacts/
 validation/
+.ruff_cache/

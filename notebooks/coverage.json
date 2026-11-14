@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-released.json",
+      "sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+        "notes": "Complete actual release/current function and table exports: six function overloads and one same-name table merge to five logical surfaces. All are local read operations; no auth/write exclusions. Registration and signatures match; current changes add composed example metadata."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "catalog_sha256": "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf",
+        "notes": "Complete actual release/current function and table exports: six function overloads and one same-name table merge to five logical surfaces. All are local read operations; no auth/write exclusions. Registration and signatures match; current changes add composed example metadata."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "27542f7c8004b761e5ba712d9ba3a222b46b6426fba27514ce1f88c416f56a36"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "supported_languages"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sql": [
+        {
+          "cell": "choose-language",
+          "reference": "tantivy.main.supported_languages"
+        }
+      ],
+      "narrative_cells": [
+        "language-story"
+      ],
+      "result_cells": [
+        "language-finding"
+      ],
+      "interpretation_cells": [
+        "language-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "catalog_sha256": [
+          "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+          "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
+        ],
+        "purpose": "Confirm English is a supported configuration before applying it consistently to the authored corpus.",
+        "finding": "The real language vocabulary has eighteen entries and includes English; selection is configuration, not automatic language detection."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "stem"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sql": [
+        {
+          "cell": "stem-examples",
+          "reference": "tantivy.main.stem"
+        }
+      ],
+      "narrative_cells": [
+        "language-story"
+      ],
+      "result_cells": [
+        "language-finding"
+      ],
+      "interpretation_cells": [
+        "language-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "catalog_sha256": [
+          "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+          "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
+        ],
+        "purpose": "Compare specific word normalizations before interpreting lexical matches.",
+        "finding": "Battery and batteries share a stem; storage and storing do not. Stemming is not synonym matching."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "tokenize"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sql": [
+        {
+          "cell": "analyze-corpus",
+          "reference": "tantivy.main.tokenize"
+        }
+      ],
+      "narrative_cells": [
+        "tokens-story"
+      ],
+      "result_cells": [
+        "coverage-finding"
+      ],
+      "interpretation_cells": [
+        "coverage-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "catalog_sha256": [
+          "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+          "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
+        ],
+        "purpose": "Inspect plain versus English tokens and count each query stem in every indexed document.",
+        "finding": "Three corpus documents contain both query stems and seven contain at least one; the count grid explains this simple AND/OR example."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "bm25_search"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sql": [
+        {
+          "cell": "search-corpus",
+          "reference": "tantivy.main.bm25_search"
+        }
+      ],
+      "narrative_cells": [
+        "search-story"
+      ],
+      "result_cells": [
+        "ranking-finding"
+      ],
+      "interpretation_cells": [
+        "ranking-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "catalog_sha256": [
+          "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+          "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
+        ],
+        "purpose": "Retrieve a fixed small corpus under conjunctive and OR requirements and join every hit to source IDs.",
+        "finding": "The query returns three or seven of eight indexed texts with document101 first; score and rank are interpreted only within the current corpus/query context."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "bm25_score"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "sql": [
+        {
+          "cell": "score-probe",
+          "reference": "tantivy.main.bm25_score"
+        }
+      ],
+      "narrative_cells": [
+        "scalar-score-story"
+      ],
+      "result_cells": [
+        "score-finding"
+      ],
+      "interpretation_cells": [
+        "score-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
+        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "catalog_sha256": [
+          "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+          "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
+        ],
+        "purpose": "Compare the top document score with an isolated one-document index.",
+        "finding": "Document101 has different shared-corpus and single-document scores (1.023 versus0.575 in the default); a scalar probe does not calibrate the common ranking."
+      }
+    }
+  ]
+}

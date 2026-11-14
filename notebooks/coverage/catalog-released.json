@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-tantivy",
+  "revision": "v0.4.0",
+  "captured_at": "2026-11-14T17:50:42.646990+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "evidence": [
+    {
+      "path": "coverage/functions.json",
+      "sha256": "090998bf7e42c6544abc7688896bff84e371074c0e587081b58fd5a8647e3beb",
+      "description": "Complete worker-filtered functions export from real Haybarn/VGI connection"
+    },
+    {
+      "path": "coverage/tables.json",
+      "sha256": "52c8dec059feb4126810cddf932d7d497176264e1c64509f9b7c51d67d068296",
+      "description": "Complete worker-filtered tables export from real Haybarn/VGI connection"
+    },
+    {
+      "path": "coverage/arguments.json",
+      "sha256": "72fb370327c2bee0514e0f33bff4053977f49410c9544fef28e322d613a8bcdd",
+      "description": "Complete worker-filtered arguments export from real Haybarn/VGI connection"
+    }
+  ],
+  "objects": [
+    {
+      "schema": "main",
+      "name": "bm25_score",
+      "kind": "function",
+      "signatures": [
+        "bm25_score(VARCHAR, VARCHAR) -> DOUBLE"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "bm25_search",
+      "kind": "function",
+      "signatures": [
+        "bm25_search(VARCHAR, VARCHAR) -> TABLE"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "stem",
+      "kind": "function",
+      "signatures": [
+        "stem(VARCHAR, VARCHAR) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "supported_languages",
+      "kind": "function",
+      "signatures": [
+        "supported_languages() -> TABLE"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "tokenize",
+      "kind": "function",
+      "signatures": [
+        "tokenize(VARCHAR) -> VARCHAR[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "tokenize",
+      "kind": "function",
+      "signatures": [
+        "tokenize(VARCHAR, VARCHAR) -> VARCHAR[]"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "supported_languages",
+      "kind": "table",
+      "signatures": [
+        "catalog table"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ],
+  "runtime": "Haybarn 2.0.0rc11",
+  "launch": "github-auto://Query-farm/vgi-tantivy@v0.4.0",
+  "review_notes": "Actual runtime exports: 6 overload rows and 1 table row merge to 5 logical surfaces; registration checked in scalar/mod.rs, table/mod.rs and lib.rs. Current changes from release add examples only; signatures match."
+}

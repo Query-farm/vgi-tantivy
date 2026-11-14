@@ -1,0 +1,51 @@
+{
+  "query": "SELECT * FROM duckdb_tables() WHERE database_name='tantivy' ORDER BY schema_name,table_name",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "schema_oid",
+    "table_name",
+    "table_oid",
+    "comment",
+    "tags",
+    "internal",
+    "temporary",
+    "has_primary_key",
+    "estimated_size",
+    "column_count",
+    "index_count",
+    "check_constraint_count",
+    "sql"
+  ],
+  "rows": [
+    [
+      "tantivy",
+      22592,
+      "main",
+      22731,
+      "supported_languages",
+      22791,
+      "The Snowball stemmer language ids this worker supports (valid `lang` values for tokenize, stem, and the search analyzer).",
+      {
+        "category": "discovery",
+        "domain": "search",
+        "topic": "stemmer-languages",
+        "vgi.category": "Discovery",
+        "vgi.doc_llm": "The discovery table of every Snowball stemmer language id this worker supports. One row per language; the single `lang` column is the valid value to pass as the `lang` argument of tokenize(text, lang) and stem(word, lang). Query it to find out which languages are available before stemming or tokenizing.",
+        "vgi.doc_md": "# supported_languages\n\nThe discovery table listing every Snowball stemmer language id the worker supports. One row per language, with a single column `lang` (e.g. `english`, `french`, `german`). These are exactly the valid `lang` values for `tokenize(text, lang)`, `stem(word, lang)`, and the internal search analyzer. Use it to enumerate the available languages.",
+        "vgi.example_queries": "[\n  {\n    \"description\": \"List the first few supported Snowball stemmer languages.\",\n    \"sql\": \"SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5\"\n  },\n  {\n    \"description\": \"Check whether a specific language is supported.\",\n    \"sql\": \"SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages WHERE lang = 'english'\"\n  }\n]",
+        "vgi.keywords": "[\"supported languages\",\"stemmer languages\",\"snowball languages\",\"available languages\",\"language list\",\"discovery\",\"tokenize languages\",\"stem languages\"]",
+        "vgi.title": "Supported Stemmer Languages"
+      },
+      false,
+      false,
+      true,
+      0,
+      1,
+      2,
+      0,
+      "CREATE TABLE supported_languages(lang VARCHAR, UNIQUE(lang), PRIMARY KEY(lang));"
+    ]
+  ]
+}

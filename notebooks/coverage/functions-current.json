@@ -1,0 +1,264 @@
+{
+  "query": "SELECT * FROM duckdb_functions() WHERE database_name='tantivy' ORDER BY schema_name,function_name,parameter_types",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "function_name",
+    "alias_of",
+    "function_type",
+    "description",
+    "comment",
+    "tags",
+    "return_type",
+    "parameters",
+    "parameter_types",
+    "varargs",
+    "macro_definition",
+    "has_side_effects",
+    "internal",
+    "extension_name",
+    "function_oid",
+    "examples",
+    "stability",
+    "categories"
+  ],
+  "rows": [
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "bm25_score",
+      null,
+      "scalar",
+      "Ad-hoc BM25 score of a single document against a query (1-doc index; 0.0 if no match)",
+      null,
+      {
+        "vgi.category": "Search & Ranking",
+        "vgi.doc_llm": "Compute an ad-hoc BM25 relevance score for one document against a query string, using the English stemmer and a throwaway 1-document index. Returns 0.0 when the document does not match the query. Because BM25 statistics depend on the whole corpus, scores are NOT comparable across rows \u2014 use bm25_search to rank a real corpus. NULL document or query \u2192 NULL.",
+        "vgi.doc_md": "Ad-hoc BM25 score of a single document against a query, e.g. `bm25_score('the cat sat on the mat', 'cat')` (> 0.0 on match, 0.0 otherwise).",
+        "vgi.example_queries": "[{\"description\":\"Ad-hoc BM25 relevance of a single document against a query.\",\"sql\":\"SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score\"}]",
+        "vgi.keywords": "[\"bm25\",\"bm25 score\",\"relevance score\",\"single document\",\"ad-hoc score\",\"full-text match\",\"scoring\",\"ranking probe\",\"query match\"]",
+        "vgi.title": "BM25 Single-Document Score"
+      },
+      "DOUBLE",
+      [
+        "doc_text",
+        "query"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22726,
+      [
+        "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "bm25_search",
+      null,
+      "table",
+      "BM25 full-text ranking of a JSON document corpus against a query, as (doc_id, score) rows",
+      null,
+      {
+        "vgi.category": "Search & Ranking",
+        "vgi.doc_llm": "Rank a corpus of documents against a full-text query by BM25 relevance, using an ephemeral in-RAM tantivy index built per call (English stemmer). The corpus is a constant JSON payload: a JSON array of strings (doc_id = array index) or of {id,text} objects (explicit doc_id); a subquery is not accepted as an argument, so materialize one with SET VARIABLE and pass getvariable(...). Multi-term queries are conjunctive (every term must match); write 'a OR b' to match any term. Returns one (doc_id, score) row per matching document, best score first. NULL/empty corpus or blank query \u2192 no rows; malformed JSON or an unparseable query is a clear error.",
+        "vgi.doc_md": "Rank a JSON document corpus by BM25 relevance to a query, returning `(doc_id, score)` rows best-first, e.g. `bm25_search('[\"the cat sat\",\"dogs bark\"]', 'cat')`.",
+        "vgi.example_queries": "[{\"description\":\"Rank a small JSON corpus by BM25 relevance to a query, best score first.\",\"sql\":\"SELECT doc_id, score FROM tantivy.main.bm25_search('[\\\"the cat sat\\\",\\\"dogs bark\\\",\\\"a cat and a dog\\\"]', 'cat') ORDER BY score DESC, doc_id\"},{\"description\":\"Rank a corpus carrying explicit {id,text} document ids.\",\"sql\":\"SELECT doc_id, score FROM tantivy.main.bm25_search('[{\\\"id\\\":10,\\\"text\\\":\\\"the cat sat\\\"},{\\\"id\\\":20,\\\"text\\\":\\\"stock crash\\\"}]', 'cat')\"},{\"description\":\"Rank product titles for 'running OR shoes' with bm25_search, join the hits back to the titles by id, and use tokenize(\u2026, 'english') to list which stemmed query terms each hit contains.\",\"sql\":\"SELECT p.title, round(h.score, 3) AS score, list_sort(list_intersect(tantivy.main.tokenize(p.title, 'english'), tantivy.main.tokenize('running shoes', 'english'))) AS matched_terms FROM tantivy.main.bm25_search('[{\\\"id\\\":1,\\\"text\\\":\\\"Trail running shoes\\\"},{\\\"id\\\":2,\\\"text\\\":\\\"Leather dress shoes\\\"},{\\\"id\\\":3,\\\"text\\\":\\\"Runners guide to the marathon\\\"},{\\\"id\\\":4,\\\"text\\\":\\\"Cast iron skillet\\\"},{\\\"id\\\":5,\\\"text\\\":\\\"Running socks\\\"}]', 'running OR shoes') AS h JOIN (VALUES (1, 'Trail running shoes'), (2, 'Leather dress shoes'), (3, 'Runners guide to the marathon'), (4, 'Cast iron skillet'), (5, 'Running socks')) AS p(id, title) ON p.id = h.doc_id ORDER BY h.score DESC, p.title\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Rank a small JSON corpus by BM25 relevance to a query.\",\n    \"sql\": \"SELECT doc_id, score FROM tantivy.main.bm25_search('[\\\"the cat sat\\\",\\\"dogs bark\\\",\\\"a cat and a dog\\\"]', 'cat') ORDER BY score DESC, doc_id\"\n  },\n  {\n    \"description\": \"Rank a corpus carrying explicit document ids.\",\n    \"sql\": \"SELECT doc_id, score FROM tantivy.main.bm25_search('[{\\\"id\\\":10,\\\"text\\\":\\\"the cat sat\\\"},{\\\"id\\\":20,\\\"text\\\":\\\"stock crash\\\"}]', 'cat')\"\n  },\n  {\n    \"description\": \"Ad-hoc BM25 score of a single document against a query.\",\n    \"sql\": \"SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score\"\n  },\n  {\n    \"description\": \"Tokenize text into lowercased unicode word tokens.\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens\"\n  },\n  {\n    \"description\": \"Tokenize and Snowball-stem text for a language.\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens\"\n  },\n  {\n    \"description\": \"Snowball-stem a single word for a language.\",\n    \"sql\": \"SELECT tantivy.main.stem('running', 'english') AS root\"\n  },\n  {\n    \"description\": \"List the supported Snowball stemmer languages.\",\n    \"sql\": \"SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5\"\n  }\n]",
+        "vgi.keywords": "[\"bm25\",\"bm25_search\",\"full-text search\",\"corpus ranking\",\"relevance ranking\",\"document search\",\"search\",\"retrieval\",\"ranked results\",\"scoring\",\"query\"]",
+        "vgi.result_columns_schema": "[\n  {\"name\": \"doc_id\", \"type\": \"BIGINT\", \"description\": \"Document id \u2014 the 0-based corpus index, or the explicit id from {id,text} objects.\"},\n  {\"name\": \"score\", \"type\": \"DOUBLE\", \"description\": \"BM25 relevance score; higher is more relevant. Ties are broken by ascending doc_id.\"}\n]",
+        "vgi.title": "BM25 Corpus Search & Ranking"
+      },
+      null,
+      [
+        "docs_json",
+        "query"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22729,
+      [
+        "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"a cat and a dog\"]', 'cat') ORDER BY score DESC, doc_id",
+        "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"}]', 'cat')",
+        "SELECT p.title, round(h.score, 3) AS score, list_sort(list_intersect(tantivy.main.tokenize(p.title, 'english'), tantivy.main.tokenize('running shoes', 'english'))) AS matched_terms FROM tantivy.main.bm25_search('[{\"id\":1,\"text\":\"Trail running shoes\"},{\"id\":2,\"text\":\"Leather dress shoes\"},{\"id\":3,\"text\":\"Runners guide to the marathon\"},{\"id\":4,\"text\":\"Cast iron skillet\"},{\"id\":5,\"text\":\"Running socks\"}]', 'running OR shoes') AS h JOIN (VALUES (1, 'Trail running shoes'), (2, 'Leather dress shoes'), (3, 'Runners guide to the marathon'), (4, 'Cast iron skillet'), (5, 'Running socks')) AS p(id, title) ON p.id = h.doc_id ORDER BY h.score DESC, p.title"
+      ],
+      null,
+      []
+    ],
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "stem",
+      null,
+      "scalar",
+      "Snowball-stem a single word for the given language (e.g. running \u2192 run)",
+      null,
+      {
+        "vgi.category": "Text Analysis",
+        "vgi.doc_llm": "Reduce a single word to its Snowball stem (root) for the given language, e.g. 'running' \u2192 'run' in English. Useful for normalizing terms before matching or grouping. NULL word or language \u2192 NULL; an unknown language is a clear error.",
+        "vgi.doc_md": "Snowball-stem one word to its root for a language, e.g. `stem('running', 'english')` \u2192 `run`.",
+        "vgi.example_queries": "[{\"description\":\"Snowball-stem a single English word to its root.\",\"sql\":\"SELECT tantivy.main.stem('running', 'english') AS root\"},{\"description\":\"Stem the word 'connections' with every supported Snowball stemmer (one row per language from supported_languages) and keep only the languages whose stemmer changes it.\",\"sql\":\"SELECT lang, tantivy.main.stem('connections', lang) AS root FROM tantivy.main.supported_languages WHERE tantivy.main.stem('connections', lang) <> 'connections' ORDER BY lang\"},{\"description\":\"Tokenize a sentence (no stemming), then stem each token with stem() to group the word variants under their English Snowball root, most frequent root first.\",\"sql\":\"SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Snowball-stem a single English word to its root.\",\n    \"sql\": \"SELECT tantivy.main.stem('running', 'english') AS root\"\n  }\n]",
+        "vgi.keywords": "[\"stem\",\"stemming\",\"snowball\",\"root word\",\"lemmatize\",\"normalize term\",\"word root\",\"morphology\",\"language\"]",
+        "vgi.title": "Stem Single Word"
+      },
+      "VARCHAR",
+      [
+        "word",
+        "lang"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22727,
+      [
+        "SELECT tantivy.main.stem('running', 'english') AS root",
+        "SELECT lang, tantivy.main.stem('connections', lang) AS root FROM tantivy.main.supported_languages WHERE tantivy.main.stem('connections', lang) <> 'connections' ORDER BY lang",
+        "SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "supported_languages",
+      null,
+      "table",
+      "List the Snowball stemmer language ids this worker supports",
+      null,
+      {
+        "vgi.category": "Discovery",
+        "vgi.doc_llm": "List the Snowball stemmer language ids this worker supports. These are the valid `lang` values for tokenize(text, lang), stem(word, lang), and the internal search analyzer. Use it to discover which languages are available.",
+        "vgi.doc_md": "List the supported Snowball stemmer language ids, usable with `tokenize`, `stem`, and the search analyzer. Column: `lang`.",
+        "vgi.example_queries": "[{\"description\":\"List the first few supported Snowball stemmer languages, alphabetically.\",\"sql\":\"SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5\"},{\"description\":\"Check whether a specific language is supported.\",\"sql\":\"SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages() WHERE lang = 'english'\"},{\"description\":\"Stem the word 'connections' with every supported Snowball stemmer (one row per language from supported_languages) and keep only the languages whose stemmer changes it.\",\"sql\":\"SELECT lang, tantivy.main.stem('connections', lang) AS root FROM tantivy.main.supported_languages WHERE tantivy.main.stem('connections', lang) <> 'connections' ORDER BY lang\"}]",
+        "vgi.keywords": "[\"supported languages\",\"stemmer languages\",\"snowball languages\",\"available languages\",\"language list\",\"discovery\",\"tokenize languages\",\"stem languages\"]",
+        "vgi.result_columns_schema": "[\n  {\"name\": \"lang\", \"type\": \"VARCHAR\", \"description\": \"A supported Snowball stemmer language id, e.g. english, french, german.\"}\n]",
+        "vgi.title": "Supported Stemmer Languages"
+      },
+      null,
+      [],
+      [],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22730,
+      [
+        "SELECT lang FROM tantivy.main.supported_languages() ORDER BY lang LIMIT 5",
+        "SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages() WHERE lang = 'english'",
+        "SELECT lang, tantivy.main.stem('connections', lang) AS root FROM tantivy.main.supported_languages WHERE tantivy.main.stem('connections', lang) <> 'connections' ORDER BY lang"
+      ],
+      null,
+      []
+    ],
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "tokenize",
+      null,
+      "scalar",
+      "Tokenize text into VARCHAR[]; 1-arg form only splits+lowercases (no stemming)",
+      null,
+      {
+        "vgi.category": "Text Analysis",
+        "vgi.doc_llm": "Split text into normalized word tokens, returned as a `VARCHAR` array. Two forms: `tokenize(text)` applies the default analyzer only \u2014 unicode word segmentation, lowercasing, and dropping of overly long tokens, with NO stemming (e.g. 'Running quickly, CATS!' \u2192 ['running','quickly','cats']); `tokenize(text, lang)` does the same and additionally Snowball-stems each token for the given language, collapsing word variants to a shared root (e.g. 'Running quickly' with 'english' \u2192 ['run','quickli']). NULL text (or NULL language in the 2-arg form) \u2192 NULL; an unknown language is a clear error.",
+        "vgi.doc_md": "Tokenize text into a `VARCHAR` array of normalized terms. The 1-arg form `tokenize(text)` only tokenizes and lowercases (no stemmer), e.g. `tokenize('Running quickly, CATS!')` \u2192 `['running','quickly','cats']`. The 2-arg form `tokenize(text, lang)` additionally Snowball-stems each token, e.g. `tokenize('Running quickly', 'english')` \u2192 `['run','quickli']`.",
+        "vgi.example_queries": "[{\"description\":\"Tokenize text into lowercased word tokens (1-arg form, no stemming).\",\"sql\":\"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens\"},{\"description\":\"Tokenize and Snowball-stem text for a language (2-arg form).\",\"sql\":\"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens\"},{\"description\":\"Tokenize a sentence (no stemming), then stem each token with stem() to group the word variants under their English Snowball root, most frequent root first.\",\"sql\":\"SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Tokenize text into lowercased word tokens (1-arg form, no stemming).\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens\"\n  },\n  {\n    \"description\": \"Tokenize and Snowball-stem text for a language (2-arg form).\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens\"\n  }\n]",
+        "vgi.keywords": "[\"tokenize\",\"tokenization\",\"tokens\",\"split words\",\"word segmentation\",\"lowercase\",\"stemming tokenizer\",\"snowball\",\"analyzer\",\"multilingual\",\"text analysis\",\"terms\"]",
+        "vgi.title": "Tokenize Text"
+      },
+      "VARCHAR[]",
+      [
+        "text"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22728,
+      [
+        "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens",
+        "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens",
+        "SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "tantivy",
+      "22592",
+      "main",
+      "tokenize",
+      null,
+      "scalar",
+      "Tokenize text into VARCHAR[]; 2-arg form additionally Snowball-stems each token",
+      null,
+      {
+        "vgi.category": "Text Analysis",
+        "vgi.doc_llm": "Split text into normalized word tokens, returned as a `VARCHAR` array. Two forms: `tokenize(text)` applies the default analyzer only \u2014 unicode word segmentation, lowercasing, and dropping of overly long tokens, with NO stemming (e.g. 'Running quickly, CATS!' \u2192 ['running','quickly','cats']); `tokenize(text, lang)` does the same and additionally Snowball-stems each token for the given language, collapsing word variants to a shared root (e.g. 'Running quickly' with 'english' \u2192 ['run','quickli']). NULL text (or NULL language in the 2-arg form) \u2192 NULL; an unknown language is a clear error.",
+        "vgi.doc_md": "Tokenize text into a `VARCHAR` array of normalized terms. The 1-arg form `tokenize(text)` only tokenizes and lowercases (no stemmer), e.g. `tokenize('Running quickly, CATS!')` \u2192 `['running','quickly','cats']`. The 2-arg form `tokenize(text, lang)` additionally Snowball-stems each token, e.g. `tokenize('Running quickly', 'english')` \u2192 `['run','quickli']`.",
+        "vgi.example_queries": "[{\"description\":\"Tokenize text into lowercased word tokens (1-arg form, no stemming).\",\"sql\":\"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens\"},{\"description\":\"Tokenize and Snowball-stem text for a language (2-arg form).\",\"sql\":\"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens\"},{\"description\":\"Tokenize a sentence (no stemming), then stem each token with stem() to group the word variants under their English Snowball root, most frequent root first.\",\"sql\":\"SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root\"}]",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Tokenize text into lowercased word tokens (1-arg form, no stemming).\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens\"\n  },\n  {\n    \"description\": \"Tokenize and Snowball-stem text for a language (2-arg form).\",\n    \"sql\": \"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens\"\n  }\n]",
+        "vgi.keywords": "[\"tokenize\",\"tokenization\",\"tokens\",\"split words\",\"word segmentation\",\"lowercase\",\"stemming tokenizer\",\"snowball\",\"analyzer\",\"multilingual\",\"text analysis\",\"terms\"]",
+        "vgi.title": "Tokenize Text"
+      },
+      "VARCHAR[]",
+      [
+        "text",
+        "lang"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22728,
+      [
+        "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens",
+        "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens",
+        "SELECT tantivy.main.stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tantivy.main.tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root"
+      ],
+      "CONSISTENT",
+      []
+    ]
+  ]
+}

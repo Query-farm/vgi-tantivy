@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "v0.4.0",
+      "catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
+      "collection_reconciled": true,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 5,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_score"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_search"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "stem"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_languages"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_score",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "bm25_score(VARCHAR, VARCHAR) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_search",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "bm25_search(VARCHAR, VARCHAR) -> TABLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "stem",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "stem(VARCHAR, VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_languages",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "catalog table",
+            "supported_languages() -> TABLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "tokenize(VARCHAR) -> VARCHAR[]",
+            "tokenize(VARCHAR, VARCHAR) -> VARCHAR[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "0a28365406fd7bbee9edcec694255435507aa796",
+      "catalog_sha256": "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf",
+      "collection_reconciled": true,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_score"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_search"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "stem"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_languages"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_score",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "bm25_score(VARCHAR, VARCHAR) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "bm25_search",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "bm25_search(VARCHAR, VARCHAR) -> TABLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "stem",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "stem(VARCHAR, VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "supported_languages",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "catalog table",
+            "supported_languages() -> TABLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "tokenize",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "tokenize(VARCHAR) -> VARCHAR[]",
+            "tokenize(VARCHAR, VARCHAR) -> VARCHAR[]"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_retrieval_scope_comes_before_ranking.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "supported_languages"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "stem"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "tokenize"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "bm25_search"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "bm25_score"
+      },
+      "notebook": "01_retrieval_scope_comes_before_ranking.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951"
+    }
+  ],
+  "issues": []
+}
