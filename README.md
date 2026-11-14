@@ -223,3 +223,7 @@ Written by [Query.Farm](https://query.farm).
 
 Copyright 2026 Query Farm LLC - https://query.farm
 
+
+## Executable notebooks
+
+See [the SQL-first Python notebook](notebooks/README.md) for English token analysis, AND/OR retrieval, corpus BM25 ranking and visualizations.
