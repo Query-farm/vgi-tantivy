@@ -71,6 +71,19 @@ SELECT stem(NULL::VARCHAR, 'english') IS NULL;
 ----
 true
 
+# Composed (tokenize / stem example): tokenize without stemming, then stem each
+# token to group word variants under their English root.
+query TTI
+SELECT stem(tok, 'english') AS root, list(DISTINCT tok ORDER BY tok) AS variants, count(*) AS occurrences FROM unnest(tokenize('Runners were running; the runner runs and ran a run.')) AS u(tok) GROUP BY root ORDER BY occurrences DESC, root;
+----
+run	[run, running, runs]	3
+runner	[runner, runners]	2
+a	[a]	1
+and	[and]	1
+ran	[ran]	1
+the	[the]	1
+were	[were]	1
+
 # Empty text → empty token list (not NULL).
 query I
 SELECT len(tokenize(''));

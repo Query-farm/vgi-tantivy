@@ -23,3 +23,5 @@ tasks:
   - name: "stem a single word"
     reference_sql: "SELECT tantivy.main.stem('running', 'english') AS root"
     ignore_column_names: true
+  - name: "group stemmer languages by root"
+    reference_sql: "SELECT tantivy.main.stem('nationalities', lang) AS root, count(*) AS languages FROM tantivy.main.supported_languages() GROUP BY root ORDER BY languages DESC, root"

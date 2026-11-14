@@ -92,6 +92,48 @@ SELECT doc_id FROM bm25_search(getvariable('docs'), 'cat') ORDER BY score DESC L
 ----
 0
 
+# A subquery is NOT accepted as the corpus argument (hence the variable above).
+statement error
+SELECT doc_id FROM bm25_search((SELECT json_group_array(body) FROM corpus), 'cat');
+----
+Table function cannot contain subqueries
+
+# Multi-term queries are conjunctive: 'running shoes' needs both terms; tantivy's
+# 'running OR shoes' syntax matches either.
+statement ok
+CREATE TEMP TABLE products AS SELECT * FROM (VALUES (1, 'Trail running shoes'), (2, 'Leather dress shoes'), (3, 'Runners guide to the marathon'), (4, 'Cast iron skillet'), (5, 'Running socks')) AS p(id, title);
+
+statement ok
+SET VARIABLE pdocs = (SELECT json_group_array(json_object('id', id, 'text', title)) FROM products);
+
+query I
+SELECT doc_id FROM bm25_search(getvariable('pdocs'), 'running shoes') ORDER BY doc_id;
+----
+1
+
+# Composed (README / bm25_search example): rank with bm25_search, join the hits
+# back to the source rows, and list the stemmed query terms each hit contains via
+# tokenize. 'Runners' stems to 'runner', so doc 3 is not a hit.
+query TRT
+SELECT p.title, round(h.score, 3) AS score, list_sort(list_intersect(tokenize(p.title, 'english'), tokenize('running shoes', 'english'))) AS matched_terms FROM bm25_search(getvariable('pdocs'), 'running OR shoes') AS h JOIN products AS p ON p.id = h.doc_id ORDER BY h.score DESC, p.title;
+----
+Trail running shoes	1.797	[run, shoe]
+Running socks	1.034	[run]
+Leather dress shoes	0.898	[shoe]
+
+# Composed (schema / supported_languages / stem example): stem one word with every
+# supported language, keeping only the stemmers that change it.
+query TT
+SELECT lang, stem('connections', lang) AS root FROM tantivy.main.supported_languages WHERE stem('connections', lang) <> 'connections' ORDER BY lang;
+----
+danish	connection
+dutch	connection
+english	connect
+french	connect
+german	connection
+norwegian	connection
+swedish	connection
+
 # supported_languages() discovery: non-empty and includes english.
 query I
 SELECT count(*) > 0 FROM supported_languages();

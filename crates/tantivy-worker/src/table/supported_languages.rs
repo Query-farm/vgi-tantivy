@@ -24,6 +24,7 @@ const EXAMPLE_QUERIES: &[(&str, &str)] = &[
         "Check whether a specific language is supported.",
         "SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages() WHERE lang = 'english'",
     ),
+    crate::composed::STEM_EVERY_LANGUAGE,
 ];
 
 pub struct SupportedLanguages;

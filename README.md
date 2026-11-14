@@ -132,6 +132,28 @@ SET VARIABLE docs = (
 SELECT * FROM bm25_search(getvariable('docs'), 'cat') ORDER BY score DESC;
 ```
 
+Passing the subquery straight in (`bm25_search((SELECT json_group_array(body) FROM corpus), 'cat')`)
+fails with `Table function cannot contain subqueries`, hence the variable.
+
+Multi-term queries are **conjunctive** — `'running shoes'` only matches documents
+containing both terms. Use tantivy's query syntax for any-term matching
+(`'running OR shoes'`). Join the hits back to the source table by `doc_id` and
+use `tokenize` to see which stemmed query terms each hit contains:
+
+```sql
+SET VARIABLE docs = (
+  SELECT json_group_array(json_object('id', id, 'text', title)) FROM products);
+SELECT p.title, round(h.score, 3) AS score,
+       list_sort(list_intersect(tokenize(p.title, 'english'),
+                                tokenize('running shoes', 'english'))) AS matched_terms
+FROM bm25_search(getvariable('docs'), 'running OR shoes') AS h
+JOIN products AS p ON p.id = h.doc_id
+ORDER BY h.score DESC, p.title;
+--  Trail running shoes | 1.797 | [run, shoe]
+--  Running socks       | 1.034 | [run]
+--  Leather dress shoes | 0.898 | [shoe]
+```
+
 ## Ephemeral index
 
 Both `bm25_search` and `bm25_score` build a brand-new tantivy index in a **RAM

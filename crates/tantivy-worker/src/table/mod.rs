@@ -21,6 +21,21 @@ pub fn register(worker: &mut Worker) {
     worker.register_table(supported_languages::SupportedLanguages);
 }
 
+/// `(description, sql)` examples for the `supported_languages` catalog table
+/// (the parenthesis-free surface), including the composed stem-every-language
+/// example defined once in `composed.rs`.
+const SUPPORTED_LANGUAGES_TABLE_EXAMPLES: &[(&str, &str)] = &[
+    (
+        "List the first few supported Snowball stemmer languages.",
+        "SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5",
+    ),
+    (
+        "Check whether a specific language is supported.",
+        "SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages WHERE lang = 'english'",
+    ),
+    crate::composed::STEM_EVERY_LANGUAGE,
+];
+
 /// A function-backed catalog table for the parameterless `supported_languages()`
 /// table function, so it can also be used as `SELECT * FROM tantivy.main.supported_languages`
 /// (no parentheses). A parameterless table function always returns the same rows,
@@ -98,20 +113,7 @@ pub fn supported_languages_table() -> CatTable {
         ("topic".to_string(), "stemmer-languages".to_string()),
         // VGI413: the schema `vgi.categories` entry this table belongs to.
         ("vgi.category".to_string(), "Discovery".to_string()),
-        (
-            "vgi.example_queries".to_string(),
-            r#"[
-  {
-    "description": "List the first few supported Snowball stemmer languages.",
-    "sql": "SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5"
-  },
-  {
-    "description": "Check whether a specific language is supported.",
-    "sql": "SELECT count(*) > 0 AS supported FROM tantivy.main.supported_languages WHERE lang = 'english'"
-  }
-]"#
-            .to_string(),
-        ),
+        crate::meta::example_queries_tag(SUPPORTED_LANGUAGES_TABLE_EXAMPLES),
     ];
     t
 }

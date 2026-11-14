@@ -65,6 +65,7 @@ const TOKENIZE_EXAMPLE_QUERIES: &[(&str, &str)] = &[
         "Tokenize and Snowball-stem text for a language (2-arg form).",
         "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens",
     ),
+    crate::composed::TOKENIZE_GROUP_BY_ROOT,
 ];
 const TOKENIZE_KEYWORDS: &[&str] = &[
     "tokenize",
@@ -229,10 +230,14 @@ impl ScalarFunction for TokenizeLang {
 
 /// Shared `(description, sql)` example for `stem`, used byte-identically for the
 /// native `FunctionExample` carrier and the `vgi.example_queries` tag (VGI515).
-const STEM_EXAMPLE_QUERIES: &[(&str, &str)] = &[(
-    "Snowball-stem a single English word to its root.",
-    "SELECT tantivy.main.stem('running', 'english') AS root",
-)];
+const STEM_EXAMPLE_QUERIES: &[(&str, &str)] = &[
+    (
+        "Snowball-stem a single English word to its root.",
+        "SELECT tantivy.main.stem('running', 'english') AS root",
+    ),
+    crate::composed::STEM_EVERY_LANGUAGE,
+    crate::composed::TOKENIZE_GROUP_BY_ROOT,
+];
 
 /// `stem(word, lang) -> VARCHAR` — Snowball-stem a single word.
 pub struct Stem;

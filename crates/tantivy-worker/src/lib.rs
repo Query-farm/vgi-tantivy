@@ -36,6 +36,7 @@
 //! ephemeral-index semantics).
 
 mod arrow_io;
+mod composed;
 mod meta;
 mod scalar;
 mod search;
@@ -49,6 +50,39 @@ use vgi::Worker;
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
+
+/// Schema-level `vgi.example_queries`: one single-object example per function,
+/// then the composed examples (defined once in `composed.rs`) that combine two or
+/// more of the worker's objects.
+const SCHEMA_EXAMPLE_QUERIES: &[(&str, &str)] = &[
+    (
+        "Rank a small JSON corpus by BM25 relevance to a query, best score first.",
+        "SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat') ORDER BY score DESC, doc_id",
+    ),
+    (
+        "Compute the ad-hoc BM25 score of a single document against a query.",
+        "SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score",
+    ),
+    (
+        "Tokenize text into lowercased word tokens (no stemming).",
+        "SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens",
+    ),
+    (
+        "Tokenize and Snowball-stem text for a language.",
+        "SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens",
+    ),
+    (
+        "Snowball-stem a single word to its root for a language.",
+        "SELECT tantivy.main.stem('running', 'english') AS root",
+    ),
+    (
+        "List the first few supported Snowball stemmer languages, alphabetically.",
+        "SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5",
+    ),
+    composed::SEARCH_EXPLAIN_HITS,
+    composed::TOKENIZE_GROUP_BY_ROOT,
+    composed::STEM_EVERY_LANGUAGE,
+];
 
 /// Catalog + schema metadata (description, provenance, support) surfaced to
 /// DuckDB and the `vgi-lint` metadata-quality linter. The function objects
@@ -125,7 +159,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  ## Key concepts\n\n\
                  Corpora are passed **inline as constant JSON** rather than as table references, \
                  because the ranking function binds its corpus at query-bind time: assemble a text \
-                 column into a JSON payload with `json_group_array` and hand it in. Relevance is \
+                 column into a JSON payload with `json_group_array`, materialize it with \
+                 `SET VARIABLE`, and pass `getvariable(...)` (a subquery is not accepted as a \
+                 table-function argument). Multi-term queries match documents containing \
+                 every term; use `a OR b` for any-term matching. Relevance is \
                  lexical (keyword/BM25), not semantic — there is no embedding model or vector \
                  store. Text analysis is language-aware through Snowball stemming, so word variants \
                  collapse to a shared root; the set of stemmer languages is discoverable at \
@@ -198,6 +235,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
   {
     "name": "stem a single word",
     "prompt": "Using this worker's single-word stemming function, reduce the individual English word 'running' to its Snowball root. Return exactly one row holding a single scalar text value — the stemmed root word itself (a plain string, not a list or array)."
+  },
+  {
+    "name": "group stemmer languages by root",
+    "prompt": "Stem the single word 'nationalities' with every Snowball stemmer language this worker supports, then group the languages by the root they produce. Return two columns (root VARCHAR, languages BIGINT) — each distinct root and how many languages produce it — ordered by languages descending, then root ascending."
   }
 ]"#
                 .to_string(),
@@ -275,18 +316,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 // human-readable description (the native newline-joined form drops
                 // descriptions). Each is projection/filter/aggregation, not a bare
                 // SELECT * (VGI514).
-                (
-                    "vgi.example_queries".to_string(),
-                    r#"[
-  {"description":"Rank a small JSON corpus by BM25 relevance to a query, best score first.","sql":"SELECT doc_id, score FROM tantivy.main.bm25_search('[\"the cat sat\",\"dogs bark\",\"stock crash\"]', 'cat') ORDER BY score DESC, doc_id"},
-  {"description":"Compute the ad-hoc BM25 score of a single document against a query.","sql":"SELECT tantivy.main.bm25_score('the cat sat on the mat', 'cat') AS score"},
-  {"description":"Tokenize text into lowercased word tokens (no stemming).","sql":"SELECT tantivy.main.tokenize('Running quickly, CATS!') AS tokens"},
-  {"description":"Tokenize and Snowball-stem text for a language.","sql":"SELECT tantivy.main.tokenize('Running quickly', 'english') AS tokens"},
-  {"description":"Snowball-stem a single word to its root for a language.","sql":"SELECT tantivy.main.stem('running', 'english') AS root"},
-  {"description":"List the first few supported Snowball stemmer languages, alphabetically.","sql":"SELECT lang FROM tantivy.main.supported_languages ORDER BY lang LIMIT 5"}
-]"#
-                        .to_string(),
-                ),
+                crate::meta::example_queries_tag(SCHEMA_EXAMPLE_QUERIES),
             ],
             views: Vec::new(),
             macros: Vec::new(),

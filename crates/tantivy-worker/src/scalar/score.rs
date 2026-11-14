@@ -22,8 +22,8 @@ fn ve(e: impl std::fmt::Display) -> RpcError {
     RpcError::value_error(e.to_string())
 }
 
-/// The fixed stemmer language for the ad-hoc scorer. English is the default; the
-/// corpus-ranking `bm25_search` table function exposes the full language choice.
+/// The fixed stemmer language for the ad-hoc scorer. Like `bm25_search`, it is
+/// always English; other languages are reachable only through `tokenize`/`stem`.
 const SCORE_LANG: &str = "english";
 
 /// Shared `(description, sql)` example, used byte-identically for the native

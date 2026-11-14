@@ -11,15 +11,20 @@
 //!   * a JSON array of `{"id":<int>,"text":<string>}` objects, carrying an
 //!     explicit `doc_id`.
 //!
-//! Assemble it in SQL from a real table with `json_group_array`:
+//! Assemble it in SQL from a real table with `json_group_array`, materialized
+//! into a variable first — DuckDB rejects a subquery as a table-function
+//! argument ("Table function cannot contain subqueries"):
 //! ```sql
-//! SELECT * FROM bm25_search(
-//!   (SELECT json_group_array(text) FROM corpus), 'cat');
+//! SET VARIABLE docs = (SELECT json_group_array(text) FROM corpus);
+//! SELECT * FROM bm25_search(getvariable('docs'), 'cat');
 //! -- with explicit ids:
-//! SELECT * FROM bm25_search(
-//!   (SELECT json_group_array(json_object('id', id, 'text', body)) FROM corpus),
-//!   'cat');
+//! SET VARIABLE docs = (
+//!   SELECT json_group_array(json_object('id', id, 'text', body)) FROM corpus);
+//! SELECT * FROM bm25_search(getvariable('docs'), 'cat');
 //! ```
+//!
+//! Multi-term queries are conjunctive (every term must match); use tantivy's
+//! query syntax (`running OR shoes`) for any-term matching.
 //!
 //! ## Ephemeral index
 //! A brand-new tantivy index is built in a RAM directory for this one call and
@@ -91,6 +96,7 @@ const EXAMPLE_QUERIES: &[(&str, &str)] = &[
         "Rank a corpus carrying explicit {id,text} document ids.",
         "SELECT doc_id, score FROM tantivy.main.bm25_search('[{\"id\":10,\"text\":\"the cat sat\"},{\"id\":20,\"text\":\"stock crash\"}]', 'cat')",
     ),
+    crate::composed::SEARCH_EXPLAIN_HITS,
 ];
 
 /// Upper bound on the number of ranked hits returned.
@@ -126,7 +132,10 @@ impl TableFunction for Bm25Search {
                     "Rank a corpus of documents against a full-text query by BM25 relevance, using \
                      an ephemeral in-RAM tantivy index built per call (English stemmer). The \
                      corpus is a constant JSON payload: a JSON array of strings (doc_id = array \
-                     index) or of {id,text} objects (explicit doc_id). Returns one (doc_id, score) \
+                     index) or of {id,text} objects (explicit doc_id); a subquery is not accepted \
+                     as an argument, so materialize one with SET VARIABLE and pass \
+                     getvariable(...). Multi-term queries are conjunctive (every term must \
+                     match); write 'a OR b' to match any term. Returns one (doc_id, score) \
                      row per matching document, best score first. NULL/empty corpus or blank query \
                      → no rows; malformed JSON or an unparseable query is a clear error.",
                     "Rank a JSON document corpus by BM25 relevance to a query, returning \
