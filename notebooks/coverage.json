@@ -27,10 +27,10 @@
   "notebooks": [
     {
       "path": "01_retrieval_scope_comes_before_ranking.ipynb",
-      "sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+      "sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
       "execution": {
         "path": "coverage/run-01.json",
-        "sha256": "27542f7c8004b761e5ba712d9ba3a222b46b6426fba27514ce1f88c416f56a36"
+        "sha256": "4ce47a0648a0225b327f152f2964252d1ab519310e4e081d6ced33e5de575932"
       }
     }
   ],
@@ -60,7 +60,7 @@
         "status": "approved",
         "reviewer": "Codex /root/notebooks_earthquakes",
         "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
-        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
         "catalog_sha256": [
           "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
           "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
@@ -94,7 +94,7 @@
         "status": "approved",
         "reviewer": "Codex /root/notebooks_earthquakes",
         "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
-        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
         "catalog_sha256": [
           "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
           "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
@@ -128,7 +128,7 @@
         "status": "approved",
         "reviewer": "Codex /root/notebooks_earthquakes",
         "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
-        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
         "catalog_sha256": [
           "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
           "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
@@ -162,7 +162,7 @@
         "status": "approved",
         "reviewer": "Codex /root/notebooks_earthquakes",
         "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
-        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
         "catalog_sha256": [
           "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
           "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"
@@ -196,7 +196,7 @@
         "status": "approved",
         "reviewer": "Codex /root/notebooks_earthquakes",
         "reviewed_at": "2026-11-14T17:52:46.419273+00:00",
-        "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+        "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
         "catalog_sha256": [
           "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
           "612de1f7828707dbb3d7a51bca1156c7a667fff83184df38ae55f3f1405bbadf"

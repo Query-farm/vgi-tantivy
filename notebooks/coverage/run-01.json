@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "notebook_sha256": "955dde346782398f564db15ae751f3279e6bde1b035e3ec01cfdc2ef22350a31",
+  "notebook_sha256": "b2b0b1fd8fb185d3417bcbf0ecac99d1885ffe8c973dbbc75ce68bde41cf5039",
   "catalog_sha256": "b98c9f9fb771240cc2d1f337b0d8e9f6cc75f98114f5fb12319462f816bfb951",
   "worker_revision": "v0.4.0",
   "status": "success",
-  "executed_at": "2026-11-14T17:52:42.042873+00:00",
+  "executed_at": "2026-11-14T18:52:29.437183+00:00",
   "engine": "Haybarn 2.0.0rc11 / VGI (published bundled extension)",
-  "command": "uv run --locked python artifacts/execute_with_receipt.py; invokes python -m vgi_notebooks.execute 01_retrieval_scope_comes_before_ranking.ipynb",
+  "command": "uv run --locked vgi-notebooks --timeout 300",
   "catalog_aliases": [
     "tantivy"
   ],
@@ -22,7 +22,7 @@
       "id": "bootstrap",
       "status": "success",
       "execution_count": 2,
-      "source_sha256": "513c5796c47e6b1ccaf689cc9e0f265e754a3cbd6f71f8cd0fa8cfbee4b3a106",
+      "source_sha256": "7bdbd80e0ad4f7ab5b9ce7a320ba66fe49bd8bc3d92c0d74eaafa42d89991425",
       "outputs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     {
@@ -165,5 +165,6 @@
       "source_sha256": "05fc3be912d6d4a52dd8617a931cd7f30047354eff8381a41da8679ecc5feee7",
       "outputs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     }
-  ]
+  ],
+  "presentation_update": "Shared tools0.3.6: linked worker identity/header/footer; analytical code unchanged; whole notebook executed again."
 }

@@ -1,0 +1,5 @@
+Shared notebook tools v0.3.6; complete default runs in fresh kernels.
+Updated vgi-example-notebooks v0.3.3 (ae7ec49a) -> v0.3.6 (31eb1be7)
+Running 01_retrieval_scope_comes_before_ranking.ipynb ...
+OK: 22 code cells, 2 charts, 3.3s
+All saved output cells are byte-identical to the previous publication. Analytical code is unchanged.
