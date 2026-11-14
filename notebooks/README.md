@@ -27,7 +27,7 @@ and preserves successful defaults on failure. If an older setup replaced Colab's
 kernel libraries, save your work, choose **Runtime → Disconnect and delete runtime**,
 reconnect and open this updated notebook.
 
-The [shared standard](https://github.com/Query-farm/vgi-example-notebooks/blob/v0.3.6/docs/standard.md),
+The [shared standard](https://github.com/Query-farm/vgi-example-notebooks/blob/v0.3.8/docs/standard.md),
 runner, canonical branding, SQL secret isolation and SVG presentation live in
 [vgi-example-notebooks](https://github.com/Query-farm/vgi-example-notebooks).
 `tantivy_example.py` contains result checks, charts and interpretations. Analytical
