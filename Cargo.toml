@@ -8,7 +8,7 @@ members = ["crates/tantivy-worker", "crates/tantivy-wasm"]
 default-members = ["crates/tantivy-worker"]
 
 [workspace.package]
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 rust-version = "1.97"
 license = "MIT"
@@ -25,7 +25,7 @@ repository = "https://github.com/Query-farm/vgi-tantivy"
 # Features are additive, and the two are behind mutually-exclusive target cfgs.
 # Keep the arrow entries below in lockstep with what `vgi` requires so a single
 # arrow resolves.
-vgi = { version = "0.51.0", default-features = false }
+vgi = { version = "0.51.1", default-features = false }
 vgi-rpc = { version = "0.32.4", default-features = false, features = ["macros"] }
 arrow-array = "59.2"
 arrow-buffer = "59.2"
